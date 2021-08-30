@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'project_manager',
     'rest_framework',
-    'django-richtextfield',
+    'djrichtextfield',
 ]
 
 MIDDLEWARE = [

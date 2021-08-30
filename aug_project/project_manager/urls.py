@@ -1,7 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 from .views import index
 
 app_name = 'project_manager'
 urlpatterns = [
-    path('', index, name='index')
+    path('', index, name='index'),
 ]

@@ -49,7 +49,7 @@ class project(models.Model):
     members = models.ManyToManyField(user)
     name = models.CharField(max_length = 100)
     wiki = RichTextField()
-    creator = models.OneToOneField(user)
+    creator = models.OneToOneField(user, primary_key = False, on_delete = models.DO_NOTHING, related_name = 'project_creator')
     date_created = models.DateField(auto_now_add = True)
     #False = project is incomplete, True = project is finished
     proj_status = models.BooleanField(default = False)
@@ -60,7 +60,7 @@ class project(models.Model):
 class list(models.Model):
     project = models.ForeignKey(project, on_delete = models.CASCADE)
     title = models.CharField(max_length = 200)
-    creator = models.OneToOneField(user)
+    creator = models.OneToOneField(user, primary_key = False, on_delete = models.DO_NOTHING, related_name = 'list_creator')
     time_stamp = models.DateTimeField(auto_now_add = True)
     #False = incomplete, True = complete
     list_status = models.BooleanField(default = False)
@@ -72,7 +72,7 @@ class card(models.Model):
     list = models.ForeignKey(list, on_delete = models.CASCADE)
     title = models.CharField(max_length = 100)
     desc = RichTextField()
-    creator = models.OneToOneField(user)
+    creator = models.OneToOneField(user, primary_key = False, on_delete = models.DO_NOTHING, related_name = 'card_creator')
     assignees = models.ManyToManyField(user)
     #False = incomplete, True = complete
     card_status = models.BooleanField(default = False)
