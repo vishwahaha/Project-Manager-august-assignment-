@@ -8,10 +8,10 @@ class user(models.Model):
     full_name, display_picture, enrollment_number are provided by channel-i
     (Might use more details in the future)
     """
-
+    user_id = models.IntegerField(primary_key = True)
     full_name = models.CharField(max_length = 200)
     display_picture = models.ImageField()
-    enrollment_number = models.IntegerField(primary_key = True)
+    enrolment_number = models.IntegerField(default = 00000000)
 
     USER_TYPES = [
         ('admin', 'admin'),
@@ -34,13 +34,13 @@ class user(models.Model):
     the related_name = project_creator, list_creater, card_creator respectively
     """
 
-    STATUS = [
+    ONLINE_STATUS = [
         ('ON', 'online'),
         ('OFF', 'offline'),
     ]
-    status = models.CharField(
+    online_status = models.CharField(
         max_length = 3,
-        choices = STATUS,
+        choices = ONLINE_STATUS,
         default = 'OFF', 
     )
     
