@@ -1,14 +1,19 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 from djrichtextfield.models import RichTextField
 
 # Create your models here.
 
-class user(models.Model):
+class user(AbstractBaseUser):
     """
     full_name, display_picture, enrollment_number are provided by channel-i
     (Might use more details in the future)
     """
-    user_id = models.IntegerField(primary_key = True)
+    user_id = models.IntegerField(primary_key = True, unique = True)
     full_name = models.CharField(max_length = 200)
     display_picture = models.ImageField()
     enrolment_number = models.IntegerField(default = 00000000)
@@ -33,21 +38,20 @@ class user(models.Model):
     Projects, lists and cards created by the user can be accsessed by using 
     the related_name = project_creator, list_creater, card_creator respectively
     """
-
-    ONLINE_STATUS = [
-        ('ON', 'online'),
-        ('OFF', 'offline'),
-    ]
-    online_status = models.CharField(
-        max_length = 3,
-        choices = ONLINE_STATUS,
-        default = 'OFF', 
-    )
+    #True -- user is online
+    online_status = models.BooleanField(default = False)
     
     is_disabled = models.BooleanField(default = False)
 
+    USERNAME_FIELD = 'user_id'
+
     def __str__(self):
         return f"This is {self.full_name}({self.enrol_number})'s data"
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
 
 class project(models.Model):
 
@@ -128,3 +132,5 @@ class comment(models.Model):
     
     def __str__(self):
         return f"{self.content} *BY* {self.commentor.full_name}"
+
+#d5aa371b4704b678ee6f859fade87711ea846be4 token for me
