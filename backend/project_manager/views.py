@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 
 #REST Framework imports
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -12,15 +12,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 
 #Custom imports
-from .param_settings.oauth2_params import auth_params
+from .app_settings.oauth2_params import auth_params
+from .app_settings.permissons import IsAdmin, IsCommentor, IsCreatorOrAdminElseReadOnly, IsDisabledThenReadOnly, IsProjectMember
 from .utils.auth_utils import login, logout, login_needed, redirect_if_loggedin
 
 #Modules, models etc. imports
 from . import models
 from . import serializers
 import requests
-import json
-
 
 # ----------------VIEWS---------------------
 
@@ -92,21 +91,100 @@ def home(req):
     serialized = serializers.projectSerializer(projects, many = True)
     return Response(serialized.data)
 
-#Have to customize these viewsets for permissons
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = models.project.objects.all()
     serializer_class = serializers.projectSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsCreatorOrAdminElseReadOnly,]
 
-class ListViewSet(viewsets.ModelViewSet):
-    queryset = models.list.objects.all()
+    def get_queryset(self):
+        user = self.request.user
+        return user.project_set
+    
+    def perform_create(self, serializer):
+        member_list = serializer.validated_data['members']
+        member_list.append(self.request.user)
+        member_list = list(set(member_list))
+        serializer.save(creator = self.request.user, members = member_list)
+
+class ListCreateOrList(generics.ListCreateAPIView):
+
     serializer_class = serializers.listSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
 
-class CardViewSet(viewsets.ModelViewSet):
-    queryset = models.card.objects.all()
+    def get_queryset(self):
+        project = models.project.objects.get(id = self.kwargs['project_id'])
+        return project.list_set
+    
+    def perform_create(self, serializer):
+        project = models.project.objects.get(id = self.kwargs['project_id'])
+        serializer.save(creator = self.request.user, project = project)
+
+class ListDetail(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = serializers.listSerializer
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
+    lookup_url_kwarg = 'list_id'
+
+    def get_queryset(self):
+        project = models.project.objects.get(id = self.kwargs['project_id'])
+        return project.list_set
+
+class CardCreateOrList(generics.ListCreateAPIView):
+
     serializer_class = serializers.cardSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
+
+    def get_queryset(self):
+        list = models.list.objects.get(id = self.kwargs['list_id'])
+        return list.card_set
+    
+    def perform_create(self, serializer):
+        list_obj = models.list.objects.get(id = self.kwargs['list_id'])
+        project = models.project.objects.get(id = self.kwargs['project_id'])
+        assignees = serializer.validated_data['assignees']
+        assignees = list(set(assignees))
+        proj_members = project.members.all()
+
+        """
+        Only allow assignees which are members of the project
+        """
+        for x in assignees:
+            if x not in proj_members:
+                assignees.remove(x)
+        
+        serializer.save(creator = self.request.user, list = list_obj, assignees = assignees)
+        
+class CardDetail(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = serializers.cardSerializer
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
+    lookup_url_kwarg = 'card_id'
+
+    def get_queryset(self):
+        list = models.list.objects.get(id = self.kwargs['list_id'])
+        return list.card_set
+
+class CommentCreateOrList(generics.ListCreateAPIView):
+
+    serializer_class = serializers.commentSerializer
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember,]
+
+    def get_queryset(self):
+        card = models.card.objects.get(id = self.kwargs['card_id'])
+        return card.comment_set
+
+    def perform_create(self, serializer):
+        card = models.card.objects.get(id = self.kwargs['card_id'])
+        serializer.save(commentor = self.request.user, card = card)
+
+class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = serializers.commentSerializer
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCommentor]
+    lookup_url_kwarg = 'comment_id'
+
+    def get_queryset(self):
+        card = models.card.objects.get(id = self.kwargs['card_id'])
+        return card.comment_set
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
@@ -114,6 +192,14 @@ class CardViewSet(viewsets.ModelViewSet):
 def static_auth(req):
     content = {'authenticated' : True,}
     return Response(content)
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication,])
+@permission_classes([IsAuthenticated, IsAdmin])
+def admin_user_interface(req):
+    user_list = models.user.objects.all()
+    serialized = serializers.userSerializer(user_list, many = True)
+    return Response(serialized.data, status = status.HTTP_200_OK) 
 
 def logout_view(req):
     """

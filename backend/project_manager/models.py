@@ -34,6 +34,7 @@ class user(AbstractBaseUser):
     #projects = models.ManyToManyField(project)
     #cards = models.ManyToManyField(cards)
     #comments = models.ManyToManyField(comment)
+    
     """
     Projects, lists and cards created by the user can be accsessed by using 
     the related_name = project_creator, list_creater, card_creator respectively
@@ -46,12 +47,12 @@ class user(AbstractBaseUser):
     USERNAME_FIELD = 'user_id'
 
     def __str__(self):
-        return f"This is {self.full_name}({self.enrol_number})'s data"
+        return f"This is {self.full_name}({self.enrolment_number})'s data"
 
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
+@receiver(post_save, sender = settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance = None, created = False, **kwargs):
     if created:
-        Token.objects.create(user=instance)
+        Token.objects.create(user = instance)
 
 class project(models.Model):
 
@@ -59,10 +60,10 @@ class project(models.Model):
     name = models.CharField(max_length = 100)
     wiki = RichTextField()
 
-    creator = models.OneToOneField(
-        user, 
-        primary_key = False, 
-        on_delete = models.DO_NOTHING, 
+    creator = models.ForeignKey(
+        user,
+        primary_key = False,
+        on_delete = models.DO_NOTHING,
         related_name = 'project_creator',
     )
 
@@ -71,6 +72,10 @@ class project(models.Model):
     #False = project is incomplete, True = project is finished
     finished_status = models.BooleanField(default = False)
 
+    """
+    Lists can be accessed by list_set
+    """
+
     def __str__(self):
         return f"Project : {self.name}, created by : {self.creator.full_name}"
 
@@ -78,21 +83,27 @@ class list(models.Model):
     
     project = models.ForeignKey(
         project, 
+        primary_key = False,
         on_delete = models.CASCADE,
     )
 
     title = models.CharField(max_length = 200)
 
-    creator = models.OneToOneField(user, 
-        primary_key = False, 
-        on_delete = models.DO_NOTHING, 
-        related_name = 'list_creator',
+    creator = models.ForeignKey(
+        user,
+        primary_key = False,
+        on_delete = models.DO_NOTHING,
+        related_name = 'list_creator'
     )
 
     time_stamp = models.DateTimeField(auto_now_add = True)
 
     #False = incomplete, True = complete
     finished_status = models.BooleanField(default = False)
+
+    """
+    Cards can be accessed by card_set
+    """
 
     def __str__(self):
         return f"List id: {self.id}, in project: {self.project.name}"
@@ -101,16 +112,17 @@ class card(models.Model):
 
     list = models.ForeignKey(
         list, 
+        primary_key = False,
         on_delete = models.CASCADE,
     )
     title = models.CharField(max_length = 100)
     desc = RichTextField()
 
-    creator = models.OneToOneField(
-        user, 
-        primary_key = False, 
-        on_delete = models.DO_NOTHING, 
-        related_name = 'card_creator',
+    creator = models.ForeignKey(
+        user,
+        primary_key = False,
+        on_delete = models.DO_NOTHING,
+        related_name = 'card_creator'
     )
 
     assignees = models.ManyToManyField(user)
@@ -118,6 +130,10 @@ class card(models.Model):
     #False = incomplete, True = complete
     finished_status = models.BooleanField(default = False)
 
+    """
+    Comments can be accessed by comment_set
+    """
+    
     def __str__(self):
         return f"Card in {self.list}"
 
@@ -125,12 +141,24 @@ class comment(models.Model):
 
     content = models.TextField()
 
-    commentor = models.ForeignKey(
-        user, 
+    card = models.ForeignKey(
+        card,
+        primary_key = False,
         on_delete = models.CASCADE,
     )
+
+    commentor = models.ForeignKey(
+        user, 
+        primary_key = False,
+        on_delete = models.CASCADE,
+        related_name = 'commented_cards',
+    )
+
+    is_edited = models.BooleanField(default = False)
     
     def __str__(self):
         return f"{self.content} *BY* {self.commentor.full_name}"
 
-#d5aa371b4704b678ee6f859fade87711ea846be4 token for me
+#f64a3fe13d69e61f2eea86e7258f971d89e1d24f token for Vishwa (creator, id = 12586)
+#ccb41b6d74f57208d90b8939b71d66d3efe04eeb token for admin (id = 96)
+#d8ca6ad5017f3dc54aa0ff142084538490336a14 token for normal user (id = 69)
