@@ -1,1 +1,4 @@
 project_env/
+migrations/
+__pycache__/
+*.pyc

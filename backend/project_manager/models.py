@@ -49,11 +49,6 @@ class user(AbstractBaseUser):
     def __str__(self):
         return f"This is {self.full_name}({self.enrolment_number})'s data"
 
-@receiver(post_save, sender = settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance = None, created = False, **kwargs):
-    if created:
-        Token.objects.create(user = instance)
-
 class project(models.Model):
 
     members = models.ManyToManyField(user)
@@ -158,7 +153,3 @@ class comment(models.Model):
     
     def __str__(self):
         return f"{self.content} *BY* {self.commentor.full_name}"
-
-#f64a3fe13d69e61f2eea86e7258f971d89e1d24f token for Vishwa (creator, id = 12586)
-#ccb41b6d74f57208d90b8939b71d66d3efe04eeb token for admin (id = 96)
-#d8ca6ad5017f3dc54aa0ff142084538490336a14 token for normal user (id = 69)
