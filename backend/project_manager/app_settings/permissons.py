@@ -52,14 +52,17 @@ class IsDisabledThenReadOnly(BasePermission):
         else:
             return True
 
-class IsAdmin(BasePermission):
+class IsAdminElseReadOnly(BasePermission):
 
     message = 'Only admins have access to this'
 
     def has_permission(self, request, view):     
         user_obj = request.user 
 
-        if user_obj.user_type == 'admin':
+        if request.method in SAFE_METHODS:
+            return True
+
+        elif user_obj.user_type == 'admin':
             return True
 
         else:

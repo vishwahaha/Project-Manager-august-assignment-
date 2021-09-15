@@ -1,6 +1,5 @@
 #Native django imports
-import json
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 
 #REST Framework imports
 from rest_framework import generics, status
@@ -13,7 +12,7 @@ from rest_framework.authtoken.models import Token
 
 #Custom imports
 from .app_settings.oauth2_params import auth_params
-from .app_settings.permissons import IsAdmin, IsCommentor, IsCreatorOrAdminElseReadOnly, IsDisabledThenReadOnly, IsProjectMember
+from .app_settings.permissons import IsAdminElseReadOnly, IsCommentor, IsCreatorOrAdminElseReadOnly, IsDisabledThenReadOnly, IsProjectMember
 
 #Modules, models etc. imports
 from . import models
@@ -21,14 +20,6 @@ from . import serializers
 import requests
 
 # ----------------VIEWS---------------------
-
-#Have to remove this as redundant (redirect on client side.)
-def oauth2_redirect(req):
-    """
-    Redirects to the link to initiante oAuth2
-    """
-    url = f"https://channeli.in/oauth/authorise/?client_id={auth_params['CLIENT_ID']}&redirect_uri={auth_params['REDIRECT_URI']}&state={auth_params['STATE_STRING']}"
-    return HttpResponseRedirect(url)
 
 @api_view(['GET'])
 def oauth2_login(req):
@@ -42,6 +33,7 @@ def oauth2_login(req):
         'redirect_uri' : auth_params['REDIRECT_URI'],
         'code' : req.GET.get('code', None),
     }
+
     res = requests.post(
         "https://channeli.in/open_auth/token/", data = parameters)
 
@@ -53,77 +45,109 @@ def oauth2_login(req):
 
         data_res = requests.get(
             "https://channeli.in/open_auth/get_user_data/", headers = header)
+
         data_dict = data_res.json()
+
+        if data_dict['person']['displayPicture'] is None:
+            defaults = {
+                'user_id' : data_dict['userId'],
+                'full_name' : data_dict['person']['fullName'],
+                'enrolment_number' : data_dict['student']['enrolmentNumber'],
+            }
+        
+        else:
+            defaults = {
+                'user_id' : data_dict['userId'],
+                'full_name' : data_dict['person']['fullName'],
+                'display_picture' : 'https://channeli.in/' + str(data_dict['person']['displayPicture'] or ''),
+                'enrolment_number' : data_dict['student']['enrolmentNumber'],
+            }
 
         if data_dict['person']['roles'][1]['role'] == 'Maintainer' and data_dict['person']['roles'][1]['activeStatus'] == 'ActiveStatus.IS_ACTIVE':
             user_obj, created = models.user.objects.update_or_create(
-                defaults = {
-                    'user_id' : data_dict['userId'],
-                    'full_name' : data_dict['person']['fullName'],
-                    'display_picture' : data_dict['person']['displayPicture'],
-                    'enrolment_number' : data_dict['student']['enrolmentNumber'],
-                },
+                defaults = defaults,
                 user_id = data_dict['userId']
             )
             user_token = Token.objects.get_or_create(user = user_obj)[0]
             redirect_header = {
                 'Authorization' : 'Token ' + user_token.key
             }
-            return Response(redirect_header)
-        else:
-            return Response('Site is only accessible to channel-i maintainers.', status = status.HTTP_403_FORBIDDEN)
-    else:
-        return Response('Some error occured, try again later', status = status.HTTP_503_SERVICE_UNAVAILABLE)
-
-#accept remember_me from form and implement it via cookies
-#Call this view after authentication by storing the value of remember_me in localStorage
-@api_view(['POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def set_remember_me(req):
-    msg = json.loads({'message' : 'cookie set'})
-    res = HttpResponse(msg, status = 201)
-
-    if req.POST['remember_me']:
-        user_token = Token.objects.get(user = req.user)
-        try:
-            res.set_cookie('project_manager', req.user.user_id + '__' + user_token.key)
+            res =  Response(redirect_header, status = status.HTTP_200_OK)
+            res['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+            res['Access-Control-Allow-Credentials'] = 'true'
+            res.set_cookie(key='project_manager', value=str(data_dict['userId']) + '__' + user_token.key, max_age = 30*24*60*60)
             return res
-        except:
-            return Response({'message' : 'cookie not set'}, status = status.HTTP_200_OK)
+        else:
+            res = Response('Site is only accessible to channel-i maintainers.', status = status.HTTP_403_FORBIDDEN)
+            res['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+            res['Access-Control-Allow-Credentials'] = 'true'
+            return res
     else:
-        return Response({'message' : 'cookie not set'}, status = status.HTTP_200_OK)
+        res = Response('Some error occured, try again later', status = status.HTTP_400_BAD_REQUEST)
+        res['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+        res['Access-Control-Allow-Credentials'] = 'true'
+        return res
 
-#Call this view before displaying the index page
 @api_view(['GET'])
-def check_remember_me(req):
+def check_cookie(req):
+    """
+    Checks if the cookie is set, if it is set then checks the validity and sends the auth token
+    """
     try:
         user_data = req.COOKIES['project_manager'].split('__')
-        user = models.user.objects.get(int(user_data[0]))
+        user = models.user.objects.get(user_id = int(user_data[0]))
 
         if Token.objects.get(user = user).key == user_data[1]:
-            return Response({'Authorization' : 'Token ' + user_data[1]}, status = status.HTTP_200_OK)
+            res = Response({'Authorization' : 'Token ' + user_data[1]}, status = status.HTTP_200_OK)
+            res['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+            res['Access-Control-Allow-Credentials'] = 'true'
+            return res
         else:
-            return Response({'message' : 'cookie not set or invalid, login through oAuth'}, status = status.HTTP_204_NO_CONTENT)
+            res = Response({'message' : 'cookie not set or invalid, login through oAuth'}, status = status.HTTP_400_BAD_REQUEST)
+            res['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+            res['Access-Control-Allow-Credentials'] = 'true'
+            return res
 
     except:
-        return Response({'message' : 'cookie not set or invalid, login through oAuth'}, status = status.HTTP_204_NO_CONTENT)
+        res = Response({'message' : 'cookie not set or invalid, login through oAuth'}, status = status.HTTP_400_BAD_REQUEST)
+        res['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+        res['Access-Control-Allow-Credentials'] = 'true'
+        return res
         
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def home(req):
+    """
+    Returns list of projects user is part of
+    """
     projects = req.user.project_set.all()
     serialized = serializers.projectSerializer(projects, many = True)
     return Response(serialized.data)
+
+class UserViewSet(viewsets.ModelViewSet):
+
+    serializer_class = serializers.userSerializer
+    permission_classes = [IsAuthenticated, IsAdminElseReadOnly]
+    http_method_names = ['get', 'head', 'patch',]
+    queryset = models.user.objects.all()
+
+    def perform_partial_update(self, serializer):
+
+        if serializer.validated_data['is_disabled']:
+            serializer.validated_data['user_type'] = 'normal'
+            serializer.save()
+        else:
+            super().perform_partial_update(self, serializer)
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.projectSerializer
     permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsCreatorOrAdminElseReadOnly,]
     lookup_url_kwarg = 'project_id'
-    http_method_names = ['get', 'post', 'head', 'patch',]
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_queryset(self):
         user = self.request.user
@@ -163,7 +187,7 @@ class ListDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.listSerializer
     permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
     lookup_url_kwarg = 'list_id'
-    http_method_names = ['get', 'post', 'head', 'patch',]
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_queryset(self):
         project = models.project.objects.get(id = self.kwargs['project_id'])
@@ -199,7 +223,7 @@ class CardDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.cardSerializer
     permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
     lookup_url_kwarg = 'card_id'
-    http_method_names = ['get', 'post', 'head', 'patch',]
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_queryset(self):
         list = models.list.objects.get(id = self.kwargs['list_id'])
@@ -239,7 +263,7 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.commentSerializer
     permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCommentor]
     lookup_url_kwarg = 'comment_id'
-    http_method_names = ['get', 'post', 'head', 'patch',]
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_queryset(self):
         card = models.card.objects.get(id = self.kwargs['card_id'])
@@ -257,21 +281,18 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def static_auth(req):
-    content = {'authenticated' : True,}
-    return Response(content)
-
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication,])
-@permission_classes([IsAuthenticated, IsAdmin])
-def admin_user_interface(req):
-    user_list = models.user.objects.all()
-    serialized = serializers.userSerializer(user_list, many = True)
-    return Response(serialized.data, status = status.HTTP_200_OK) 
+    """
+    Check if the user is verified before serving static pages
+    """
+    return Response({'authenticated' : True,})
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication,])
 @permission_classes([IsAuthenticated])
 def dashboard(req):
+    """
+    Returns list of cards user is assigned
+    """
     user_obj = req.user
     serialized = serializers.cardSerializer(user_obj.card_set.all(), many = True)
     return Response(serialized.data, status = status.HTTP_200_OK)
@@ -285,7 +306,7 @@ def logout(req):
     """
     user_token = Token.objects.get(user = req.user)
     msg = {'message' : 'Logged out successfully'}
-    res = HttpResponse(json.loads(msg), status = 200)
+    res = Response(msg, status = status.HTTP_200_OK)
 
     try:
         user_token.delete()

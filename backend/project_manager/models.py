@@ -1,9 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
 from djrichtextfield.models import RichTextField
 
 # Create your models here.
@@ -15,7 +11,9 @@ class user(AbstractBaseUser):
     """
     user_id = models.IntegerField(primary_key = True, unique = True)
     full_name = models.CharField(max_length = 200)
-    display_picture = models.ImageField()
+    display_picture = models.URLField(
+        default = 'https://cdn0.iconfinder.com/data/icons/communication-line-10/24/account_profile_user_contact_person_avatar_placeholder-256.png'
+    )
     enrolment_number = models.IntegerField(default = 00000000)
 
     USER_TYPES = [

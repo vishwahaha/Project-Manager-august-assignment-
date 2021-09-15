@@ -3,6 +3,11 @@ from . import models
 
 class userSerializer(serializers.ModelSerializer):
 
+    user_id = serializers.PrimaryKeyRelatedField(read_only = True)
+    full_name = serializers.ReadOnlyField()
+    display_picture = serializers.ReadOnlyField()
+    enrolment_number = serializers.ReadOnlyField()
+    online_status = serializers.ReadOnlyField()
     class Meta:
         model = models.user
         fields = [
