@@ -1,8 +1,8 @@
-import CircularProgress from "@material-ui/core/CircularProgress";
+import { CircularProgress } from "@mui/material";
 
 export const Loading = () => {
     return (
-        <div className="login-spinner">
+        <div className="loading-login-spinner">
             <div>
                 <CircularProgress color="primary" size="5rem" />
             </div>

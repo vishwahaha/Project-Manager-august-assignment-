@@ -5,7 +5,7 @@ import axios from "axios";
 
 export default function useLogout() {
   let history = useHistory();
-  const { user, isLoading } = useContext(UserContext);
+  const { user } = useContext(UserContext);
   let header  = JSON.parse(user);
 
   const logoutUser = async () => {

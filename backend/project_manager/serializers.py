@@ -75,7 +75,7 @@ class listSerializer(serializers.ModelSerializer):
         ]
 class projectSerializer(serializers.ModelSerializer):
 
-    creator = serializers.PrimaryKeyRelatedField(read_only = True)
+    creator = userSerializer(read_only = True)
     list_set = listSerializer(read_only = True, many = True)
     id = serializers.ReadOnlyField()
     date_created = serializers.ReadOnlyField()

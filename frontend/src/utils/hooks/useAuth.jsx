@@ -1,11 +1,12 @@
 import { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
-import { UserContext } from './UserContext';
+import { UserContext, UserData } from './UserContext';
 
 export default function useAuth(){
     let history = useHistory();
     const { setUser } = useContext(UserContext);
+    const { setUserData, setLoading } = useContext(UserData);
     const [error, setError] = useState(null);
 
     const setUserContext = async () => {
@@ -14,7 +15,12 @@ export default function useAuth(){
         .then((response) => {
             if (response.status === 200) {
                 setUser(JSON.stringify(response.data));
-                history.push('/home');
+                axios.get('/user_details', { headers: response.data })
+                .then((res) => {
+                    setUserData(res.data);
+                    setLoading(false);
+                    history.push('/home');
+                });
             } 
             else {
                 setUser(null);

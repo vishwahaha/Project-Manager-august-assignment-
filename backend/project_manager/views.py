@@ -1,6 +1,3 @@
-#Native django imports
-from django.http import HttpResponseRedirect
-
 #REST Framework imports
 from rest_framework import generics, status
 from rest_framework import viewsets
@@ -114,7 +111,6 @@ def check_cookie(req):
         res['Access-Control-Allow-Credentials'] = 'true'
         return res
         
-
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -124,6 +120,15 @@ def home(req):
     """
     projects = req.user.project_set.all()
     serialized = serializers.projectSerializer(projects, many = True)
+    return Response(serialized.data)
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def user_details(req):
+
+    user_obj = req.user
+    serialized = serializers.userSerializer(user_obj)
     return Response(serialized.data)
 
 class UserViewSet(viewsets.ModelViewSet):

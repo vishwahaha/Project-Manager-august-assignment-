@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './components/App';
 import axios from 'axios';
 // CSS
-import './components/Login/Login.css';
+import './components/App.css';
 
 axios.defaults.baseURL = 'http://localhost:8000/project_manager';
 

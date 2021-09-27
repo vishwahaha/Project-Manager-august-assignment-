@@ -19,6 +19,7 @@ urlpatterns = [
 
     #Users
     path('', include(r2.urls)),
+    path('user_details', views.user_details, name = 'user_details'),
 
     #projects, lists, cards
     path('', include(r1.urls)),
