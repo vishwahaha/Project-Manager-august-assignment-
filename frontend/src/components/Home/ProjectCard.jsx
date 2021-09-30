@@ -1,9 +1,11 @@
 import React from "react";
 import { Card, CardContent, Typography, CardActions, Chip, Box } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import { useHistory } from "react-router-dom";
 
 export const ProjectCard = (props) => {
 
+  let history = useHistory();
   const useStyles = makeStyles({
     multiLineEllipsis: {
       overflow: "hidden",
@@ -22,13 +24,29 @@ export const ProjectCard = (props) => {
       maxHeight: 225,
       cursor: 'pointer',
     },
+    cardHover :{
+      '&:hover':{
+        backgroundColor: '#f5f5f5',
+        boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
+        borderColor: '#f5f5f5',
+      },
+    },
   });
 
   const myStyles = useStyles();
 
+  function handleClick(){
+    history.push('/project/'+ props.projectId);
+  }
+
   return (
     <Box className={myStyles.limitHeight}>
-      <Card variant="outlined" sx={{ backgroundColor: '#e8e8e8', borderRadius: 5, borderColor: '#b0b0b0', width: 260, }}>
+      <Card 
+        variant="outlined" 
+        sx={{ backgroundColor: '#e8e8e8', borderRadius: 5, borderColor: '#b0b0b0', width: 260, }}
+        onClick={handleClick}
+        className={myStyles.cardHover}
+      >
         <CardContent>
           <Typography variant="h6" noWrap component="div">
             {props.title}

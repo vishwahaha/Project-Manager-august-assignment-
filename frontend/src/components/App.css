@@ -33,3 +33,38 @@ body {
     top: 50%;
     transform: translate(-50%, -50%);
 }
+/* FOR QUILL.JS EDITOR */
+.text-editor {
+  width: 1086px;
+  margin: 0 auto;
+}
+.ql-editor {
+  min-height: 140px;
+}
+.ql-container {
+    border-radius: 0 0 10px 10px;
+}
+.ql-font-arial,
+.ql-font span[data-value="arial"]::before {
+  font-family: Arial, sans-serif;
+}
+.ql-font-comic-sans,
+.ql-font span[data-value="comic-sans"]::before {
+  font-family: "Comic Sans MS", cursive, sans-serif;
+}
+.ql-font-courier-new,
+.ql-font span[data-value="courier-new"]::before {
+  font-family: "Courier New";
+}
+.ql-font-georgia,
+.ql-font span[data-value="georgia"]::before {
+  font-family: Georgia, serif;
+}
+.ql-font-helvetica,
+.ql-font span[data-value="helvetica"]::before {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+.ql-font-lucida,
+.ql-font span[data-value="lucida"]::before {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", sans-serif;
+}

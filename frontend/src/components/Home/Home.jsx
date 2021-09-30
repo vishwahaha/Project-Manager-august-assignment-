@@ -23,7 +23,6 @@ export const Home = () => {
         .get("/project/", { headers: JSON.parse(user) })
         .then(async (res) => {
           if (res.status === 200) {
-            console.log(res.data);
             setOngoingProjects(
               res.data.filter((project) => {
                 if (!project.finished_status) {
@@ -47,22 +46,20 @@ export const Home = () => {
         });
     }
     getProjectDetails();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
-    if (ongoingProjects.length == 0) {
+    if (ongoingProjects.length === 0) {
       setOP(true);
     }
   }, [ongoingProjects]);
 
   useEffect(() => {
-    if (finishedProjects.length == 0) {
+    if (finishedProjects.length === 0) {
       setFP(true);
     }
   }, [finishedProjects]);
-
-  console.log(ongoingProjects);
-  console.log(user);  
+  
   const threePlaceholders = [0, 0, 0];
   const fourPlaceholders = [0, 0, 0, 0];
 
@@ -108,7 +105,7 @@ export const Home = () => {
             className={myStyles.horizontalScroll}
             alignItems="flex-start"
           >
-              {ongoingProjects == "initial"
+              {ongoingProjects === "initial"
                 ? fourPlaceholders.map((itr, index) => {
                   return (
                     <ProjectCardPlaceholder key={index} />
@@ -118,6 +115,7 @@ export const Home = () => {
                     return (
                       <ProjectCard
                         key={index}
+                        projectId={project.id}
                         creator={project.creator.full_name}
                         title={project.name}
                         description={project.wiki}
@@ -150,7 +148,7 @@ export const Home = () => {
             className={myStyles.horizontalScroll}
             alignItems="flex-start"
           >
-              {finishedProjects == "initial"
+              {finishedProjects === "initial"
                 ? threePlaceholders.map((itr, index) => {
                   return (
                     <ProjectCardPlaceholder key={index} />
@@ -160,6 +158,7 @@ export const Home = () => {
                     return (
                       <ProjectCard
                         key={index}
+                        projectId={project.id}
                         creator={project.creator.full_name}
                         title={project.name}
                         description={project.wiki}

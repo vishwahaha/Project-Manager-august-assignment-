@@ -49,6 +49,7 @@ def oauth2_login(req):
             defaults = {
                 'user_id' : data_dict['userId'],
                 'full_name' : data_dict['person']['fullName'],
+                'display_picture': None,
                 'enrolment_number' : data_dict['student']['enrolmentNumber'],
             }
         

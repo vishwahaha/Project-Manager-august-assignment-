@@ -13,6 +13,7 @@ class user(AbstractBaseUser):
     full_name = models.CharField(max_length = 200)
     display_picture = models.URLField(
         default = None,
+        null = True,
     )
     enrolment_number = models.IntegerField(default = 00000000)
 
