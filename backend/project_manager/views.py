@@ -135,18 +135,35 @@ def user_details(req):
 class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.userSerializer
-    permission_classes = [IsAuthenticated, IsAdminElseReadOnly]
+    permission_classes = [IsAuthenticated, ]
     http_method_names = ['get', 'head', 'patch',]
     queryset = models.user.objects.all()
 
-    def perform_partial_update(self, serializer):
+    def partial_update(self, request, *args, **kwargs):
 
-        if serializer.validated_data['is_disabled']:
-            serializer.validated_data['user_type'] = 'normal'
-            serializer.save()
+        instance = self.get_object()
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            print(serializer.validated_data)
+            try:
+                if serializer.validated_data['is_disabled']: 
+                    serializer.validated_data['user_type'] = 'normal'
+                    serializer.save()
+            except:
+                pass
+
+            try:
+                if instance.is_disabled:
+                    if serializer.validated_data['user_type'] == 'admin':
+                        return Response({ 'message' : 'Disabled users cannot be admin' }, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                pass
+
+            return super().partial_update(request, *args, **kwargs)
+
         else:
-            super().perform_partial_update(self, serializer)
-
+            return super().partial_update(request, *args, **kwargs)
 
 class ProjectViewSet(viewsets.ModelViewSet):
 
@@ -235,7 +252,7 @@ class CardDetail(generics.RetrieveUpdateDestroyAPIView):
         list = models.list.objects.get(id = self.kwargs['list_id'])
         return list.card_set
     
-    def perform_partial_create(self, serializer):
+    def perform_create(self, serializer):
         project = models.project.objects.get(id = self.kwargs['project_id'])
         assignees = serializer.validated_data['assignees']
         assignees = list(set(assignees))

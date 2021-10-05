@@ -71,7 +71,10 @@ class IsAdminElseReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
         user_obj = request.user 
 
-        if user_obj.user_type == 'admin':
+        if request.method in SAFE_METHODS:
+            return True
+
+        elif user_obj.user_type == 'admin':
             return True
 
         else:

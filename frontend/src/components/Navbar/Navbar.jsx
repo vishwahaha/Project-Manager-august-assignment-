@@ -1,6 +1,6 @@
 import React, { useState ,useContext } from "react";
 
-import { Box, AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Avatar } from "@mui/material";
+import { Box, AppBar, Typography, IconButton, Menu, MenuItem, Avatar, useMediaQuery } from "@mui/material";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 //Icons
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
@@ -20,6 +20,7 @@ export const Navbar = () => {
     const { logoutUser } = useLogout();
     let history = useHistory();
 
+    const theme = createTheme();
     const headingTheme = createTheme({
         typography: {
           fontFamily: [
@@ -28,6 +29,8 @@ export const Navbar = () => {
           ].join(','),
         },
     });
+
+    const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -47,31 +50,36 @@ export const Navbar = () => {
     }
 
     return (
-            <AppBar position="sticky" sx={{ backgroundColor: '#6956C9', }}>
+            <AppBar position="sticky" sx={{ backgroundColor: '#6956C9', color: 'white', position: 'absolute', pt: 1, pb: 1, }}>
     
                 <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between',}}>
                     <Box onClick={takeHome} sx={{ display: 'flex', cursor: 'pointer', alignItems: 'center', ml: 4, }}>
                         <ThemeProvider theme={headingTheme}>
                             <AppRegistrationIcon sx={{ fontSize: 35, mr: 2, }} />
-                            <Typography variant="h4" component="div" sx={{ flexGrow: 1, fontWeight: 600, }}>
+                            <Typography variant={ isPhone ? 'h5' : 'h4' } component="div" sx={{ flexGrow: 1, fontWeight: 600, }}>
                                 Project Manager
                             </Typography>
                         </ThemeProvider>
                     </Box>
                    
                     <Box sx={{ display: 'flex', alignItems: 'center', mr: 4,}}>
-                        {userData.display_picture === null ?
-                        (
-                            <Avatar sx={{ bgcolor: '#7d7a7a', mr: 1.5, ml: 1.5, }} >
-                                {userData.full_name.split(' ').map((item) => item.charAt(0)).join('').toUpperCase()}
-                            </Avatar> 
-                        ) : (
-                            <Avatar sx={{ mr: 1.5, ml: 1.5, }} src={userData.display_picture}/>
-                        )
+                        { !isPhone &&
+                        <Box sx={{ display: 'flex', alignItems: 'center', }}>
+                            {userData.display_picture === null ?
+                            (
+                                <Avatar sx={{ bgcolor: '#7d7a7a', mr: 1.5, ml: 1.5, }} >
+                                    {userData.full_name.split(' ').map((item) => item.charAt(0)).join('').toUpperCase()}
+                                </Avatar> 
+                            ) : (
+                                <Avatar sx={{ mr: 1.5, ml: 1.5, }} src={userData.display_picture}/>
+                            )
+                            }
+                            <Typography>
+                                {userData.full_name}
+                            </Typography>
+                        </Box>
                         }
-                        <Typography>
-                            {userData.full_name}
-                        </Typography>
+
                         <Box>
                             <IconButton
                                 size="large"
@@ -109,9 +117,81 @@ export const Navbar = () => {
                                 </MenuItem>
                             </Menu>
                         </Box>
+                        
                     </Box>
                 </Box>
             </AppBar>
     );
+
+
+    return (
+        <AppBar position="sticky" sx={{ backgroundColor: '#6956C9', color: 'white', position: 'sticky', pt: 1, pb: 1, }}>
+
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between',}}>
+                <Box onClick={takeHome} sx={{ display: 'flex', cursor: 'pointer', alignItems: 'center', ml: 4, }}>
+                    <ThemeProvider theme={headingTheme}>
+                        <AppRegistrationIcon sx={{ fontSize: 35, mr: 2, }} />
+                        <Typography variant="h4" component="div" sx={{ flexGrow: 1, fontWeight: 600, }}>
+                            Project Manager
+                        </Typography>
+                    </ThemeProvider>
+                </Box>
+               
+                <Box sx={{ display: 'flex', alignItems: 'center', mr: 4,}}>
+                    {userData.display_picture === null ?
+                    (
+                        <Avatar sx={{ bgcolor: '#7d7a7a', mr: 1.5, ml: 1.5, }} >
+                            {userData.full_name.split(' ').map((item) => item.charAt(0)).join('').toUpperCase()}
+                        </Avatar> 
+                    ) : (
+                        <Avatar sx={{ mr: 1.5, ml: 1.5, }} src={userData.display_picture}/>
+                    )
+                    }
+                    <Typography>
+                        {userData.full_name}
+                    </Typography>
+                    <Box>
+                        <IconButton
+                            size="large"
+                            edge="end"
+                            color="inherit"
+                            onClick={handleClick}
+                        >
+                            <MoreIcon />
+                        </IconButton>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleClose}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'right',
+                            }}
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                        >
+                            <Link to="/home" style={{ all: 'inherit', }}>
+                                <MenuItem onClick={handleClose} >
+                                    <HomeIcon sx={{ mr: 1, }} />Home
+                                </MenuItem>
+                            </Link>
+                            <Link to="/dashboard" style={{ all: 'inherit', }}>
+                                <MenuItem onClick={handleClose} >
+                                    <DashboardIcon sx={{ mr: 1, }} />Dashboard
+                                </MenuItem>
+                            </Link>
+                            <MenuItem type="submit" onClick={logout}> 
+                                <LogoutIcon sx={{ mr: 1, }} /> Logout
+                            </MenuItem>
+                        </Menu>
+                    </Box>
+                </Box>
+            </Box>
+        </AppBar>
+    );
+
+
 };
 

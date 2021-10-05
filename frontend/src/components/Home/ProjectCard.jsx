@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, Typography, CardActions, Chip, Box } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useHistory } from "react-router-dom";
+import DOMPurify from 'dompurify';
 
 export const ProjectCard = (props) => {
 
@@ -43,7 +44,7 @@ export const ProjectCard = (props) => {
     <Box className={myStyles.limitHeight}>
       <Card 
         variant="outlined" 
-        sx={{ backgroundColor: '#e8e8e8', borderRadius: 5, borderColor: '#b0b0b0', width: 260, }}
+        sx={{ backgroundColor: '#f2f2f2', borderRadius: 5, borderColor: '#b0b0b0', width: 260, }}
         onClick={handleClick}
         className={myStyles.cardHover}
       >
@@ -54,9 +55,13 @@ export const ProjectCard = (props) => {
           <Typography sx={{ mb: 1.5 }} color="text.secondary">
             Leader: {props.creator}
           </Typography>
-          <Typography className={myStyles.multiLineEllipsis} variant="body2">
-            {props.description}
-          </Typography>
+          {/* <Typography className={myStyles.multiLineEllipsis} variant="body2"> */}
+            <div
+              dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(props.description)}} 
+              style={{ overflow: 'hidden', maxHeight: 60, }}
+            >
+            </div>
+          {/* </Typography> */}
         </CardContent>
         <CardActions>
           <Chip

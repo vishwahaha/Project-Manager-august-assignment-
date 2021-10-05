@@ -322,7 +322,7 @@ export const CreateProject = () => {
                                 </Button>
                             </Box>
                         </form>
-                        <Typography textAlign="center" color="red" sx={{ display: 'none', }}>
+                        <Typography textAlign="center" color="red" sx={{ display: postError ? 'initial' : 'none', }}>
                             Some error occurred.
                         </Typography>
                     </Box>
