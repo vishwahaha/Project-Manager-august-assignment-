@@ -3,12 +3,14 @@ import { useParams } from "react-router-dom";
 import { Loading } from "../Login/Loading";
 import { NotFound } from "../NotFound";
 import { UserContext, UserData } from "../../utils/hooks/UserContext";
-import { ProjectMember, ProjectMemberSkeleton } from "./ProjectMember";
-import { ListCard, ListCardSkeleton } from "./ListCard";
+import { ProjectMember, } from "./ProjectMember";
+import { ListCard, } from "./ListCard";
+import { CreateCardModal } from "./CreateCardModal";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 
 import axios from "axios";
 import DOMPurify from "dompurify";
+import { useHistory } from "react-router-dom";
 
 import {
     Container,
@@ -20,8 +22,7 @@ import {
     Button,
     TextField,
     Card,
-    CircularProgress,
-    Modal,
+    IconButton
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import MuiAccordion from '@mui/material/Accordion';
@@ -30,18 +31,19 @@ import { makeStyles, styled } from "@mui/styles";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import SettingsIcon from '@mui/icons-material/Settings';
+import BorderColorIcon from '@mui/icons-material/BorderColor';
 
 
 export const ProjectDetail = () => {
     const { user } = useContext(UserContext);
     const { userData } = useContext(UserData);
     const { projectId } = useParams();
+    let history = useHistory();
 
     const [pageLoading, setPageLoading] = useState(true);
     const [notfound, setNotfound] = useState(false);
     const [project, setProject] = useState({});
-    const [membersLoading, setMembersLoading] = useState(true);
-    const [membersDetail, setMembersDetail] = useState([]);
 
     //States for list creation.
     const [addingNewList, setAddingNewList] = useState(false);
@@ -52,6 +54,8 @@ export const ProjectDetail = () => {
 
     //States for card creation
     const [addingNewCard, setAddingNewCard] = useState(false);
+    const [modalListId, setModalListId] = useState(-1);
+    const [getNewCard, setGetNewCard] = useState(false);
 
     const theme = createTheme({
         palette: {
@@ -61,8 +65,6 @@ export const ProjectDetail = () => {
         },
     });
     const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
-
-    let tmpMemberDetail = [];
 
     useEffect(() => {
         async function getProjectData() {
@@ -87,36 +89,7 @@ export const ProjectDetail = () => {
                 });
         }
         getProjectData();
-    }, [user, projectId, listRequestLoading]);
-
-    useEffect(() => {
-        function getProjectMember() {
-            if (!pageLoading) {
-                project.members.forEach(async (member, idx, arr) => {
-                    await axios
-                        .get("/user/" + member + "/", {
-                            headers: JSON.parse(user),
-                        })
-                        .then((res) => {
-                            if (res.status === 200) {
-                                tmpMemberDetail.push(res.data);
-                            }
-                        })
-                        .catch((err) => {
-                            console.log(err);
-                        });
-                    try {
-                        if (tmpMemberDetail.length === project.members.length) {
-                            setMembersDetail(tmpMemberDetail);
-                            setMembersLoading(false);
-                        }
-                    } finally {
-                    }
-                });
-            }
-        }
-        getProjectMember();
-    }, [project, pageLoading]);
+    }, [user, projectId, listRequestLoading, getNewCard]);
 
     const addNewList = () => {
         setAddingNewList(true);
@@ -165,8 +138,17 @@ export const ProjectDetail = () => {
         }
     }
 
-    const addNewCard = () => {
+    const addNewCard = (listId) => {
         setAddingNewCard(true);
+        setModalListId(listId);
+    }
+
+    const closeAddNewCard = () => {
+        setAddingNewCard(false);
+    }
+
+    const fetchNewCard = () => {
+        setGetNewCard(!getNewCard);
     }
 
     const useStyles = makeStyles({
@@ -231,15 +213,43 @@ export const ProjectDetail = () => {
                     minWidth: isPhone ? "100vw" : "inherit",
                 }}
             >
-                <Modal
-                    open={addingNewCard}
-                >
-                    <Box>
-                        CARD CREATION INTERFACE HERE
-                    </Box>
-                </Modal>
+
+                <CreateCardModal 
+                    open={addingNewCard} 
+                    close={closeAddNewCard} 
+                    projectId={project.id} 
+                    listId={modalListId} 
+                    members={project.members}
+                    updateDOM={fetchNewCard}
+                />
+
                 <Box>
-                    <Typography variant="h2">{project.name}</Typography>
+                    <Box 
+                        sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            flexWrap: 'wrap', 
+                        }}
+                    >
+                        <Typography variant="h2">
+                            {project.name}
+                        </Typography>
+                        {(userData.user_type === "admin" || userData.user_id === project.creator.user_id) &&
+                        <Box>
+                            <Button 
+                                size="large" 
+                                endIcon={<SettingsIcon />} 
+                                sx={{ textTransform: 'none', }}
+                                onClick={() => {
+                                    history.push(`/project/${projectId}/edit`)
+                                }}
+                            >
+                                Edit
+                            </Button>
+                        </Box>
+                        }   
+                    </Box>
                     <Typography variant="h6" color="#878787">
                         Leader: {project.creator.full_name}
                     </Typography>
@@ -268,11 +278,7 @@ export const ProjectDetail = () => {
                             borderRadius: 5,
                         }}
                     >
-                        {membersLoading
-                            ? project.members.map((member, idx) => {
-                                  return <ProjectMemberSkeleton key={idx} />;
-                              })
-                            : membersDetail.map((member, idx) => {
+                        {project.members.map((member, idx) => {
                                   return (
                                       <ProjectMember
                                           key={idx}
@@ -305,7 +311,20 @@ export const ProjectDetail = () => {
                                     <AccordionSummary
                                         expandIcon={<ExpandMoreIcon />}
                                     >
-                                        <Typography>{list.title}</Typography>
+                                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', }}>
+                                            <Typography>{list.title}</Typography>
+                                            {(list.creator === userData.user_id || userData.user_type==="admin") &&
+                                            <IconButton 
+                                                size="large"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    history.push(`/project/${projectId}/${list.id}/edit`)
+                                                }}
+                                            >
+                                                <BorderColorIcon />
+                                            </IconButton>
+                                            }
+                                        </Box>
                                     </AccordionSummary>
                                     <AccordionDetails>
                                         <Stack
@@ -322,7 +341,6 @@ export const ProjectDetail = () => {
                                             alignItems="flex-start"
                                         >
                                             
-                                            {!membersLoading &&
                                                 <Card
                                                     variant="outlined"
                                                     sx={{
@@ -339,19 +357,13 @@ export const ProjectDetail = () => {
                                                     <Button 
                                                         endIcon={<AddBoxIcon />} 
                                                         sx={{ fontSize: 18, }}
-                                                        onClick={addNewCard}
+                                                        onClick={() => addNewCard(list.id)}
                                                     >
                                                         New card
                                                     </Button>
                                                 </Card>
-                                            }
                                             
-                                            {membersLoading ? 
-                                            (
-                                                list.card_set.map((card, index) => {
-                                                    <ListCardSkeleton key={index} />
-                                                }) 
-                                            ) : (
+                                            {
                                                 list.card_set.map((card, index) => {
                                                     return (
                                                         <ListCard 
@@ -361,16 +373,16 @@ export const ProjectDetail = () => {
                                                             cardId={card.id}
                                                             title={card.title} 
                                                             creator={
-                                                                membersDetail.find((member) => {
+                                                                project.members.find((member) => {
                                                                     return member.user_id === card.creator
-                                                                }).full_name
+                                                                })
                                                             } 
                                                             desc={card.desc} 
                                                             finishedStatus={card.finished_status} 
                                                         />
                                                     )
                                                 })
-                                            )}
+                                            }
                                         </Stack>
                                     </AccordionDetails>
                                 </Accordion>

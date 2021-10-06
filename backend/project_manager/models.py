@@ -110,7 +110,7 @@ class card(models.Model):
         on_delete = models.CASCADE,
     )
     title = models.CharField(max_length = 100)
-    desc = RichTextField()
+    desc = models.TextField(blank=True)
 
     creator = models.ForeignKey(
         user,

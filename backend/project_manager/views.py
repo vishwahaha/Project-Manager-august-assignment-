@@ -1,4 +1,5 @@
 #REST Framework imports
+from django.db.models import query
 from rest_framework import generics, status
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -135,7 +136,7 @@ def user_details(req):
 class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.userSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, IsAdminElseReadOnly]
     http_method_names = ['get', 'head', 'patch',]
     queryset = models.user.objects.all()
 
@@ -175,12 +176,23 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         return user.project_set
+
+    def retrieve(self, request, *args, **kwargs):
+        queryset = models.project.objects.all()
+        proj = generics.get_object_or_404(queryset, pk=kwargs['project_id'])
+        serializer = serializers.projectSerializer(proj)
+        members = models.user.objects.filter(user_id__in=serializer.data['members'])
+        member_serializer = serializers.userSerializer(members, many=True)
+        res_dict = serializer.data
+        res_dict['members'] = member_serializer.data
+        return Response(res_dict, status=status.HTTP_200_OK)
     
     def perform_create(self, serializer):
         member_list = serializer.validated_data['members']
         member_list.append(self.request.user)
         serializer.save(creator = self.request.user, members = member_list)
 
+    '''NEED TO CHANGE THIS. THIS IS WRONG.'''
     def perform_partial_update(self, serializer):
         user_obj = self.request.user
 
@@ -231,7 +243,7 @@ class CardCreateOrList(generics.ListCreateAPIView):
         assignees = serializer.validated_data['assignees']
         assignees = list(set(assignees))
         proj_members = project.members.all()
-
+        print(serializer.validated_data)
         """
         Only allow assignees which are members of the project
         """
@@ -298,16 +310,6 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
         else:
             validated_data['is_edited'] == True
             return super().partial_update(instance, validated_data)
-
-
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def static_auth(req):
-    """
-    Check if the user is verified before serving static pages
-    """
-    return Response({'authenticated' : True,})
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication,])

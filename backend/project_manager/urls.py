@@ -30,9 +30,6 @@ urlpatterns = [
     path('project/<int:project_id>/list/<int:list_id>/card/<int:card_id>/comments/', views.CommentCreateOrList.as_view(), name = 'comment_post_or_list'),
     path('project/<int:project_id>/list/<int:list_id>/card/<int:card_id>/comments/<int:comment_id>/', views.CommentDetail.as_view(), name = 'comment_detail'),
 
-    #Verify identity before serving static pages
-    path('static_file_auth', views.static_auth, name = 'static_file_auth'),
-
     #Dashboard
     path('dashboard', views.dashboard, name = 'dashboard'),
 

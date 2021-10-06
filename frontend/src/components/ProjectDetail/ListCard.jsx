@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import {
     Card,
     CardContent,
@@ -7,11 +7,16 @@ import {
     Typography,
     Box,
     Skeleton,
+    IconButton,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { useHistory } from "react-router";
+import EditIcon from '@mui/icons-material/Edit';
+import { useHistory } from "react-router-dom";
+import { UserData } from "../../utils/hooks/UserContext";
 
 export const ListCard = (props) => {
+
+    const { userData } = useContext(UserData);
     let history = useHistory();
 
     const handleClick = () => {
@@ -81,7 +86,7 @@ export const ListCard = (props) => {
                         sx={{ mb: 1, fontSize: 15 }}
                         color="text.secondary"
                     >
-                        Created by {props.creator}
+                        Created by {props.creator.full_name}
                     </Typography>
                     <Typography
                         className={myStyles.multiLineEllipsis}
@@ -90,16 +95,39 @@ export const ListCard = (props) => {
                         {props.desc}
                     </Typography>
                 </CardContent>
-                <CardActions>
-                    <Chip
-                        label={props.finishedStatus ? "Done" : "Pending"}
-                        className={
-                            props.finishedStatus
-                                ? myStyles.finishedChip
-                                : myStyles.ongoingChip
-                        }
-                        sx={{ cursor: "pointer" }}
-                    />
+                <CardActions sx={{ pt: 0, pb: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', }}>
+                    <Box 
+                        sx={{
+                            width: '100%', 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center',
+                            bottom: 0,
+                        }}
+                        >
+                        <Chip
+                            label={props.finishedStatus ? "Done" : "Pending"}
+                            className={
+                                props.finishedStatus
+                                    ? myStyles.finishedChip
+                                    : myStyles.ongoingChip
+                            }
+                            sx={{ cursor: "pointer" }}
+                        />
+                        {(userData.user_type==="admin" || userData.user_id===props.creator.user_id) &&
+                        <IconButton 
+                            sx={{zIndex: 999,}}
+                            color="primary"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                history.push(`/project/${props.projectId}/${props.listId}/${props.cardId}/edit`)
+                            }}
+                            size="large"
+                        >
+                            <EditIcon />
+                        </IconButton>
+                        }   
+                    </Box>
                 </CardActions>
             </Box>
         </Card>

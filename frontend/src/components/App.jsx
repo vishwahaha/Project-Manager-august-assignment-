@@ -10,7 +10,13 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import { InnerApp } from "./InnerApp";
 
-const theme = createTheme();
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#6956C9',
+    },
+  },
+});
 
 const useStyles = makeStyles((theme) => {
   root: {

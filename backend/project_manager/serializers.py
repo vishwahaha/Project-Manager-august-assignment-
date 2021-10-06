@@ -43,7 +43,6 @@ class cardSerializer(serializers.ModelSerializer):
     creator = serializers.PrimaryKeyRelatedField(read_only = True)
     list = serializers.PrimaryKeyRelatedField(read_only = True)
     id = serializers.ReadOnlyField()
-
     class Meta:
         model = models.card
         fields = [
