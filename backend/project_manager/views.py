@@ -10,7 +10,7 @@ from rest_framework.authtoken.models import Token
 
 #Custom imports
 from .app_settings.oauth2_params import auth_params
-from .app_settings.permissons import IsAdminElseReadOnly, IsCommentor, IsCreatorOrAdminElseReadOnly, IsDisabledThenReadOnly, IsProjectMember
+from .app_settings.permissons import IsAdminElseReadOnly, IsCommentor, IsCreatorOrAdminElseReadOnly, IsDisabledThenReadOnly, IsProjectMember, CardPermissons, ListPermsissons
 
 #Modules, models etc. imports
 from . import models
@@ -136,7 +136,7 @@ def user_details(req):
 class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.userSerializer
-    permission_classes = [IsAuthenticated, IsAdminElseReadOnly]
+    permission_classes = [IsAuthenticated, ]
     http_method_names = ['get', 'head', 'patch',]
     queryset = models.user.objects.all()
 
@@ -214,7 +214,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class ListCreateOrList(generics.ListCreateAPIView):
 
     serializer_class = serializers.listSerializer
-    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember,]
 
     def get_queryset(self):
         project = models.project.objects.get(id = self.kwargs['project_id'])
@@ -227,18 +227,28 @@ class ListCreateOrList(generics.ListCreateAPIView):
 class ListDetail(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = serializers.listSerializer
-    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, ListPermsissons]
     lookup_url_kwarg = 'list_id'
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_queryset(self):
         project = models.project.objects.get(id = self.kwargs['project_id'])
         return project.list_set
+    
+    def retrieve(self, request, *args, **kwargs):
+
+        queryset = models.list.objects.all()
+        list = generics.get_object_or_404(queryset, pk=self.kwargs['list_id'])
+        serializer = serializers.listSerializer(list)
+        res_dict = serializer.data
+        res_dict['creator'] = serializers.userSerializer(list.creator).data
+        res_dict['project_creator'] = serializers.userSerializer(list.project.creator).data
+        return Response(res_dict, status=status.HTTP_200_OK)
         
 class CardCreateOrList(generics.ListCreateAPIView):
 
     serializer_class = serializers.cardSerializer
-    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember,]
 
     def get_queryset(self):
         list = models.list.objects.get(id = self.kwargs['list_id'])
@@ -253,33 +263,20 @@ class CardCreateOrList(generics.ListCreateAPIView):
         """
         Only allow assignees which are members of the project
         """
-        filtered_assignees = [x for x in assignees if x not in proj_members]
+        filtered_assignees = [x for x in assignees if x in proj_members]
         
         serializer.save(creator = self.request.user, list = list_obj, assignees = filtered_assignees)
         
 class CardDetail(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = serializers.cardSerializer
-    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, IsCreatorOrAdminElseReadOnly,]
+    permission_classes = [IsAuthenticated, IsDisabledThenReadOnly, IsProjectMember, CardPermissons]
     lookup_url_kwarg = 'card_id'
-    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
+    http_method_names = ['get', 'head', 'patch', 'delete']
 
     def get_queryset(self):
         list = models.list.objects.get(id = self.kwargs['list_id'])
         return list.card_set
-    
-    def perform_create(self, serializer):
-        project = models.project.objects.get(id = self.kwargs['project_id'])
-        assignees = serializer.validated_data['assignees']
-        assignees = list(set(assignees))
-        proj_members = project.members.all()
-
-        """
-        Only allow assignees which are members of the project
-        """
-        filtered_assignees = [x for x in assignees if x not in proj_members]
-        
-        serializer.save(creator = self.request.user, assignees = filtered_assignees)
     
     def retrieve(self, request, *args, **kwargs):
 

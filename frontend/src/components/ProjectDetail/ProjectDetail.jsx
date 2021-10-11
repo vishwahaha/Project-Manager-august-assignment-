@@ -342,7 +342,7 @@ export const ProjectDetail = () => {
                                         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', }}>
                                             <Typography>{list.title}</Typography>
                                             <Box>
-                                                {(list.creator === userData.user_id || userData.user_type==="admin") &&
+                                                {(list.creator === userData.user_id || userData.user_type==="admin" || project.creator.user_id === userData.user_id) &&
                                                 <IconButton 
                                                     size="large"
                                                     onClick={(e) => {
@@ -353,7 +353,7 @@ export const ProjectDetail = () => {
                                                     <BorderColorIcon />
                                                 </IconButton>
                                                 }
-                                                {(list.creator.user_id === userData.user_id || userData.user_type==="admin" || project.creator.user_id === userData.user_id) &&
+                                                {(list.creator === userData.user_id || userData.user_type==="admin" || project.creator.user_id === userData.user_id) &&
                                                 <IconButton 
                                                     size="large"
                                                     color="error"

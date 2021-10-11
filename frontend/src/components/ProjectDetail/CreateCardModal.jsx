@@ -57,7 +57,6 @@ export const CreateCardModal = (props) => {
             return await axios
             .post(`/project/${props.projectId}/list/${props.listId}/card/`, data, { headers: JSON.parse(user) })
             .then((res) => {
-                console.log(res);
                 if(res.status === 201){
                     setReqLoading(false);
                     setCardTitle("");

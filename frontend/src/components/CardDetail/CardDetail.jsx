@@ -63,7 +63,9 @@ export const CardDetail = () => {
                             color: card.finished_status ? 'black' : 'white',
                         }}
                     />
-                    <Box>
+                    <Box>{(userData.user_type==="admin" || 
+                           userData.user_id===card.creator.user_id || 
+                           userData.user_id===card.project_creator.user_id) &&
                         <Button 
                             endIcon={<EditIcon />} 
                             sx={{ mr: 1, }}
@@ -73,9 +75,10 @@ export const CardDetail = () => {
                         >
                             Edit
                         </Button>
+                        }
                         <Button 
                             endIcon={<ExitToAppIcon />}
-                            onCLick={() => {
+                            onClick={() => {
                                 history.push(`/project/${projectId}`);
                             }}
                         >
@@ -115,6 +118,13 @@ export const CardDetail = () => {
                                 />
                             );
                         })}
+                        {card.assignees.length===0 &&
+                        <Box sx={{ p: 2, }}>
+                            <Typography variant="h4" sx={{ color: '#737373' }}>
+                                No assignees to this card.
+                            </Typography>
+                        </Box>
+                        }
                     </Box>
                 </Box>
             </Container>

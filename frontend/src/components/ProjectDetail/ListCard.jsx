@@ -169,7 +169,7 @@ export const ListCard = (props) => {
                                     ? myStyles.finishedChip
                                     : myStyles.ongoingChip
                             }
-                            sx={{ cursor: "pointer" }}
+                            sx={{ cursor: "pointer", mb: !(userData.user_type==="admin" || userData.user_id===props.creator.user_id || userData.user_id===props.project.creator.user_id) && 1, }}
                         />
                         <Box>
                             {(userData.user_type==="admin" || userData.user_id===props.creator.user_id || userData.user_id===props.project.creator.user_id) &&

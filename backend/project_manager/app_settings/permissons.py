@@ -109,3 +109,33 @@ class IsCommentor(BasePermission):
         
         else:
             return False
+
+class ListPermsissons(BasePermission):
+
+    message = 'You do not have permission for this action.'
+
+    def has_object_permission(self, request, view, obj):
+        user_obj = request.user
+
+        allow = user_obj.user_type == 'admin' or user_obj.user_id == obj.creator.user_id or user_obj.user_id == obj.project.creator.user_id
+
+        if allow:
+            return True
+        
+        else:
+            return False
+
+class CardPermissons(BasePermission):
+
+    message = 'You do not have permisson for this action.'
+
+    def has_object_permission(self, request, view, obj):
+        user_obj = request.user
+
+        allow = user_obj.user_type == 'admin' or user_obj.user_id == obj.creator.user_id or user_obj.user_id == obj.list.project.creator.user_id
+
+        if allow:
+            return True
+        
+        else:
+            return False

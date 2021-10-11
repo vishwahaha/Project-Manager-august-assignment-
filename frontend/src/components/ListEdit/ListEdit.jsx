@@ -1,21 +1,25 @@
 import React, { useState, useEffect, useContext } from "react";
-import { UserContext } from "../../utils/hooks/UserContext";
+import { UserContext, UserData } from "../../utils/hooks/UserContext";
 import { Container, Box, TextField, Typography, Button, useMediaQuery } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { LoadingButton } from "@mui/lab";
 import { useParams, useHistory } from "react-router-dom";
+import { NotAllowed } from "../NotAllowed";
+import { Loading } from "../Login/Loading";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import axios from "axios";
 
 export const ListEdit = () => {
 
     const { user } = useContext(UserContext);
+    const { userData } = useContext(UserData);
     const { projectId, listId } = useParams();
 
     let history = useHistory();
 
     const [list, setList] = useState({});
     const [listTitle, setListTitle] = useState("");
+    const [loading, setLoading] = useState(true);
 
     const [titleError, setTitleError] = useState(false);
     const [reqLoading, setReqLoading] = useState(false);
@@ -31,6 +35,7 @@ export const ListEdit = () => {
                 console.log(res.data);
                 setList(res.data);
                 setListTitle(res.data.title);
+                setLoading(false);
             })
             .catch((err) => {
                 console.log(err);
@@ -60,67 +65,78 @@ export const ListEdit = () => {
         }
     }
 
-    return (
-        <Container 
-            maxWidth="md"
-            sx={{
-                maxWidth: '90vw',
-                borderRadius: 5,
-                backgroundColor: "white",
-                margin: 'auto',
-                height: "fit-content",
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                p: 2,
-            }}
-        >
-            <Box 
-                sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    flexWrap: 'wrap', 
-                    mb: 2,
+    if(loading){
+        return <Loading />
+    }
+    else {
+
+        if(!(userData.user_type==="admin" || userData.user_id===list.creator.user_id || userData.user_id===list.project_creator.user_id)){
+            return <NotAllowed />
+        }
+
+        else
+        return (
+            <Container 
+                maxWidth="md"
+                sx={{
+                    maxWidth: '90vw',
+                    borderRadius: 5,
+                    backgroundColor: "white",
+                    margin: 'auto',
+                    height: "fit-content",
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    p: 2,
                 }}
             >
-                <Typography variant="h3">
-                    Edit list
-                </Typography>
-                <Button 
-                    endIcon={<ExitToAppIcon />}
-                    onClick={() => {
-                        history.push(`/project/${projectId}`);
+                <Box 
+                    sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        flexWrap: 'wrap', 
+                        mb: 2,
                     }}
                 >
-                    Back to project
-                </Button>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', }}>
-                <Box sx={{ width: isPhone ? '100%' : '50%', m: 2, }}>
-                    <TextField  
-                        error={titleError}
-                        label="List title" 
-                        helperText={titleError ? "A title is required" : ""}
-                        value={listTitle}
-                        onChange={(e) => {
-                            setTitleError(false);
-                            setListTitle(e.target.value);
+                    <Typography variant="h3">
+                        Edit list
+                    </Typography>
+                    <Button 
+                        endIcon={<ExitToAppIcon />}
+                        onClick={() => {
+                            history.push(`/project/${projectId}`);
                         }}
-                        sx={{ width: '100%', }}
-                    />
+                    >
+                        Back to project
+                    </Button>
                 </Box>
-                <LoadingButton 
-                    loading={reqLoading}
-                    variant="contained" 
-                    color="success" 
-                    sx={{ boxShadow: 'none', }}
-                    onClick={saveList}
-                >
-                    Save
-                </LoadingButton>
-            </Box>
-        </Container>
-    );
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', flexWrap: 'wrap', }}>
+                    <Box sx={{ width: isPhone ? '100%' : '50%', m: 2, }}>
+                        <TextField  
+                            error={titleError}
+                            label="List title" 
+                            helperText={titleError ? "A title is required" : ""}
+                            value={listTitle}
+                            onChange={(e) => {
+                                setTitleError(false);
+                                setListTitle(e.target.value);
+                            }}
+                            sx={{ width: '100%', }}
+                        />
+                    </Box>
+                    <LoadingButton 
+                        loading={reqLoading}
+                        variant="contained" 
+                        color="success" 
+                        sx={{ boxShadow: 'none', }}
+                        onClick={saveList}
+                    >
+                        Save
+                    </LoadingButton>
+                </Box>
+            </Container>
+        );
+    }
 }
