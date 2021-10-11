@@ -36,7 +36,7 @@ class user(AbstractBaseUser):
     
     """
     Projects, lists and cards created by the user can be accsessed by using 
-    the related_name = project_creator, list_creater, card_creator respectively
+    the related_name = project_creator, list_creator, card_creator respectively
     """
     #True -- user is online
     online_status = models.BooleanField(default = False)

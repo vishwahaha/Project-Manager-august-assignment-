@@ -1,5 +1,6 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
+import { createTheme } from '@mui/material/styles';
 import { Quill } from "react-quill";
 
 const CustomUndo = () => (
@@ -86,6 +87,10 @@ export const formats = [
 
 // Quill Toolbar component
 export const QuillToolbar = () => {
+
+  const theme = createTheme();
+  const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
+
     return (
         <Box id="toolbar" style={{display: 'flex', backgroundColor: '#eaecec', borderTopRightRadius: '10px', borderTopLeftRadius: '10px', }}>
             <span className="ql-formats">
@@ -115,33 +120,42 @@ export const QuillToolbar = () => {
                 <button className="ql-underline" />
                 <button className="ql-strike" />
             </span>
+
+            { !isPhone &&
             <span className="ql-formats">
                 <button className="ql-list" value="ordered" />
                 <button className="ql-list" value="bullet" />
                 <button className="ql-indent" value="-1" />
                 <button className="ql-indent" value="+1" />
             </span>
+            }
+            { !isPhone &&
             <span className="ql-formats">
                 <button className="ql-script" value="super" />
                 <button className="ql-script" value="sub" />
                 <button className="ql-blockquote" />
                 <button className="ql-direction" />
             </span>
+            }
+            { !isPhone &&
             <span className="ql-formats">
                 <select className="ql-align" />
                 <select className="ql-color" />
                 <select className="ql-background" />
             </span>
+            }
             <span className="ql-formats">
                 <button className="ql-link" />
                 <button className="ql-image" />
                 <button className="ql-video" />
             </span>
+            { !isPhone &&
             <span className="ql-formats">
                 <button className="ql-formula" />
                 <button className="ql-code-block" />
                 <button className="ql-clean" />
             </span>
+            } 
             <span className="ql-formats">
                 <button className="ql-undo">
                     <CustomUndo />

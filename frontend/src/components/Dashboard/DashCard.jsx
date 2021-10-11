@@ -20,41 +20,20 @@ import { UserData, UserContext } from "../../utils/hooks/UserContext";
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from "axios";
 
-export const ListCard = (props) => {
+export const DashCard = (props) => {
 
-    const { user } = useContext(UserContext);
-    const { userData } = useContext(UserData);
     let history = useHistory();
-
-    const [dialogOpen, setDialogOpen] = useState(false);
 
     const handleClick = () => {
         history.push(
             "/project/" +
-                props.project.id +
+                props.project +
                 "/" +
                 props.listId +
                 "/" +
                 props.cardId
         );
     };
-
-    const dialogClose = () => {
-        setDialogOpen(false);
-    }
-
-    const deleteCard = async() => {
-        return await axios
-        .delete(`/project/${props.project.id}/list/${props.listId}/card/${props.cardId}/`, { headers: JSON.parse(user), })
-        .then((res) => {
-            dialogClose();
-            props.cardDel();
-        })
-        .catch((err) => {
-            console.log(err);
-            dialogClose();
-        });
-    }
 
     const useStyles = makeStyles({
         multiLineEllipsis: {
@@ -96,36 +75,6 @@ export const ListCard = (props) => {
             onClick={handleClick}
             className={myStyles.cardHover}
         >
-
-            <Dialog
-                open={dialogOpen}
-                onClose={dialogClose}
-            >
-                <DialogTitle id="dialog-title">
-                    {"Do you surely want to proceed with this action?"}
-                </DialogTitle>
-                <DialogActions>
-                    <Button 
-                        color="success" 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            deleteCard(); 
-                        }}
-                    >
-                            Yes
-                    </Button>
-                    <Button 
-                        color="error" 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            dialogClose();
-                        }} 
-                        autoFocus
-                    >
-                        No
-                    </Button>
-                </DialogActions>
-            </Dialog>
 
             <Box
                 sx={{
@@ -169,35 +118,8 @@ export const ListCard = (props) => {
                                     ? myStyles.finishedChip
                                     : myStyles.ongoingChip
                             }
-                            sx={{ cursor: "pointer" }}
+                            sx={{ cursor: "pointer", mb: 1, }}
                         />
-                        <Box>
-                            {(userData.user_type==="admin" || userData.user_id===props.creator.user_id || userData.user_id===props.project.creator.user_id) &&
-                            <IconButton 
-                                sx={{zIndex: 999,}}
-                                color="primary"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    history.push(`/project/${props.project.id}/${props.listId}/${props.cardId}/edit`)
-                                }}
-                                size="large"
-                            >
-                                <EditIcon />
-                            </IconButton>
-                            }   
-                            {(userData.user_type==="admin" || userData.user_id===props.creator.user_id || userData.user_id===props.project.creator.user_id) &&
-                            <IconButton
-                                color="error"
-                                size="large"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setDialogOpen(true);
-                                }}
-                            >
-                                <DeleteIcon />
-                            </IconButton>
-                            }
-                        </Box>
                     </Box>
                 </CardActions>
             </Box>
@@ -205,7 +127,7 @@ export const ListCard = (props) => {
     );
 };
 
-export const ListCardSkeleton = () => {
+export const DashCardSkeleton = () => {
     return (
         <Card
             variant="outlined"

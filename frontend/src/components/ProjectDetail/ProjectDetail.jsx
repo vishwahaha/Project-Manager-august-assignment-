@@ -7,6 +7,7 @@ import { ProjectMember, } from "./ProjectMember";
 import { ListCard, } from "./ListCard";
 import { CreateCardModal } from "./CreateCardModal";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import { ListDelDialog } from "./ListDelDialog";
 
 import axios from "axios";
 import DOMPurify from "dompurify";
@@ -22,7 +23,7 @@ import {
     Button,
     TextField,
     Card,
-    IconButton
+    IconButton,
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import MuiAccordion from '@mui/material/Accordion';
@@ -33,6 +34,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SettingsIcon from '@mui/icons-material/Settings';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 
 
 export const ProjectDetail = () => {
@@ -45,17 +47,21 @@ export const ProjectDetail = () => {
     const [notfound, setNotfound] = useState(false);
     const [project, setProject] = useState({});
 
-    //States for list creation.
+    //States for list.
     const [addingNewList, setAddingNewList] = useState(false);
     const [newListTitle, setNewListTitle] = useState("");
     const [newListError, setNewListError] = useState(false);
     const [listRequestLoading, setListRequestLoading] = useState(false);
     const [listPostError, setListPostError] = useState(false);
 
+    const [listDel, setListDel] = useState(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+
     //States for card creation
     const [addingNewCard, setAddingNewCard] = useState(false);
     const [modalListId, setModalListId] = useState(-1);
     const [getNewCard, setGetNewCard] = useState(false);
+    const [cardDel, setCardDel] = useState(false);
 
     const theme = createTheme({
         palette: {
@@ -74,7 +80,6 @@ export const ProjectDetail = () => {
                 })
                 .then((res) => {
                     if (res.status === 200) {
-                        console.log(res.data);
                         setProject(res.data);
                         setPageLoading(false);
                         setNotfound(false);
@@ -89,7 +94,7 @@ export const ProjectDetail = () => {
                 });
         }
         getProjectData();
-    }, [user, projectId, listRequestLoading, getNewCard]);
+    }, [user, projectId, listRequestLoading, getNewCard, listDel, cardDel]);
 
     const addNewList = () => {
         setAddingNewList(true);
@@ -117,7 +122,6 @@ export const ProjectDetail = () => {
             return await axios
             .post('/project/'+projectId+'/list/', data, { headers: JSON.parse(user), })
             .then((res) => {
-                console.log(res);
                 if(res.status === 201){
                     setNewListTitle("");
                     setNewListError(false);
@@ -138,6 +142,23 @@ export const ProjectDetail = () => {
         }
     }
 
+    const dialogClose = () => {
+        setDialogOpen(false);
+    }
+
+    const deleteList = async(listId) => {
+        return await axios
+        .delete(`project/${projectId}/list/${listId}/`, { headers: JSON.parse(user), })
+        .then((res) => {
+            setListDel(null);
+            setDialogOpen(false);
+        })
+        .catch((err) => {
+            console.log(err);
+            setDialogOpen(false);
+        })
+    }
+
     const addNewCard = (listId) => {
         setAddingNewCard(true);
         setModalListId(listId);
@@ -149,6 +170,9 @@ export const ProjectDetail = () => {
 
     const fetchNewCard = () => {
         setGetNewCard(!getNewCard);
+    }
+    const afterCardDel = () => {
+        setCardDel(!cardDel);
     }
 
     const useStyles = makeStyles({
@@ -208,12 +232,16 @@ export const ProjectDetail = () => {
             <Container
                 sx={{
                     mt: 3,
-                    maxWidth: "100vw",
+                    maxWidth: "90vw",
                     paddingRight: isPhone ? 3.5 : "auto",
                     minWidth: isPhone ? "100vw" : "inherit",
                 }}
             >
-
+                <ListDelDialog 
+                    dialogOpen={dialogOpen} 
+                    dialogClose={dialogClose}
+                    deleteList={() =>  deleteList(listDel)} 
+                />
                 <CreateCardModal 
                     open={addingNewCard} 
                     close={closeAddNewCard} 
@@ -313,17 +341,32 @@ export const ProjectDetail = () => {
                                     >
                                         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', }}>
                                             <Typography>{list.title}</Typography>
-                                            {(list.creator === userData.user_id || userData.user_type==="admin") &&
-                                            <IconButton 
-                                                size="large"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    history.push(`/project/${projectId}/${list.id}/edit`)
-                                                }}
-                                            >
-                                                <BorderColorIcon />
-                                            </IconButton>
-                                            }
+                                            <Box>
+                                                {(list.creator === userData.user_id || userData.user_type==="admin") &&
+                                                <IconButton 
+                                                    size="large"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        history.push(`/project/${project.id}/${list.id}/edit`);
+                                                    }}
+                                                >
+                                                    <BorderColorIcon />
+                                                </IconButton>
+                                                }
+                                                {(list.creator.user_id === userData.user_id || userData.user_type==="admin" || project.creator.user_id === userData.user_id) &&
+                                                <IconButton 
+                                                    size="large"
+                                                    color="error"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setListDel(list.id);
+                                                        setDialogOpen(true);
+                                                    }}
+                                                >
+                                                    <DeleteSweepIcon />
+                                                </IconButton>
+                                                }
+                                            </Box>
                                         </Box>
                                     </AccordionSummary>
                                     <AccordionDetails>
@@ -368,17 +411,18 @@ export const ProjectDetail = () => {
                                                     return (
                                                         <ListCard 
                                                             key={index}
-                                                            projectId={project.id}
+                                                            project={project}
                                                             listId={list.id}
                                                             cardId={card.id}
                                                             title={card.title} 
                                                             creator={
                                                                 project.members.find((member) => {
-                                                                    return member.user_id === card.creator
+                                                                    return member.user_id === card.creator.user_id
                                                                 })
                                                             } 
                                                             desc={card.desc} 
                                                             finishedStatus={card.finished_status} 
+                                                            cardDel={afterCardDel}
                                                         />
                                                     )
                                                 })

@@ -146,7 +146,6 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.serializer_class(instance, data=request.data, partial=True)
 
         if serializer.is_valid():
-            print(serializer.validated_data)
             try:
                 if serializer.validated_data['is_disabled']: 
                     serializer.validated_data['user_type'] = 'normal'
@@ -192,17 +191,25 @@ class ProjectViewSet(viewsets.ModelViewSet):
         member_list.append(self.request.user)
         serializer.save(creator = self.request.user, members = member_list)
 
-    '''NEED TO CHANGE THIS. THIS IS WRONG.'''
-    def perform_partial_update(self, serializer):
-        user_obj = self.request.user
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
 
-        if user_obj.user_type == 'admin':
-            serializer.save()
-        
+        if serializer.is_valid():
+            try:
+                project_members = serializer.validated_data['members']
+                for list in instance.list_set.all():
+                    for card in list.card_set.all():
+                        for assignee in card.assignees.all():
+                            if assignee not in project_members:
+                                assignee.card_set.remove(card) 
+                instance.save()  
+                                       
+            except: 
+                pass
+            return super().partial_update(request, *args, **kwargs)
         else:
-            member_list = serializer.validated_data['members']
-            member_list.append(self.request.user)
-            serializer.save(members = member_list)
+            return super().partial_update(request, *args, **kwargs)
 
 class ListCreateOrList(generics.ListCreateAPIView):
 
@@ -243,15 +250,12 @@ class CardCreateOrList(generics.ListCreateAPIView):
         assignees = serializer.validated_data['assignees']
         assignees = list(set(assignees))
         proj_members = project.members.all()
-        print(serializer.validated_data)
         """
         Only allow assignees which are members of the project
         """
-        for x in assignees:
-            if x not in proj_members:
-                assignees.remove(x)
+        filtered_assignees = [x for x in assignees if x not in proj_members]
         
-        serializer.save(creator = self.request.user, list = list_obj, assignees = assignees)
+        serializer.save(creator = self.request.user, list = list_obj, assignees = filtered_assignees)
         
 class CardDetail(generics.RetrieveUpdateDestroyAPIView):
 
@@ -273,11 +277,26 @@ class CardDetail(generics.RetrieveUpdateDestroyAPIView):
         """
         Only allow assignees which are members of the project
         """
-        for x in assignees:
-            if x not in proj_members:
-                assignees.remove(x)
+        filtered_assignees = [x for x in assignees if x not in proj_members]
         
-        serializer.save(creator = self.request.user, assignees = assignees)
+        serializer.save(creator = self.request.user, assignees = filtered_assignees)
+    
+    def retrieve(self, request, *args, **kwargs):
+
+        queryset = models.card.objects.all()
+        card = generics.get_object_or_404(queryset, pk=kwargs['card_id'])
+        project = card.list.project
+        serializer = serializers.cardSerializer(card)
+        assignees = models.user.objects.filter(user_id__in=serializer.data['assignees'])
+        assignees_serializer = serializers.userSerializer(assignees, many=True)
+        res_dict = serializer.data
+        res_dict['assignees'] = assignees_serializer.data
+        res_dict['project'] = project.id
+        project_members = serializers.userSerializer(project.members, many = True).data
+        res_dict['project_members'] = project_members
+        project_creator = serializers.userSerializer(project.creator).data
+        res_dict['project_creator'] = project_creator
+        return Response(res_dict, status=status.HTTP_200_OK)
 
 
 class CommentCreateOrList(generics.ListCreateAPIView):
@@ -319,8 +338,15 @@ def dashboard(req):
     Returns list of cards user is assigned
     """
     user_obj = req.user
-    serialized = serializers.cardSerializer(user_obj.card_set.all(), many = True)
-    return Response(serialized.data, status = status.HTTP_200_OK)
+    cards = user_obj.card_set.all()
+    resp = []
+    for card in cards:
+        project = card.list.project
+        serialized = serializers.cardSerializer(card)
+        data = serialized.data
+        data['project'] = project.id
+        resp.append(data)
+    return Response(resp, status = status.HTTP_200_OK)
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])

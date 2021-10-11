@@ -40,7 +40,7 @@ class commentSerializer(serializers.ModelSerializer):
 class cardSerializer(serializers.ModelSerializer):
 
     assignees = serializers.PrimaryKeyRelatedField(allow_empty = True, many = True, queryset = models.user.objects.all())
-    creator = serializers.PrimaryKeyRelatedField(read_only = True)
+    creator = userSerializer(read_only = True)
     list = serializers.PrimaryKeyRelatedField(read_only = True)
     id = serializers.ReadOnlyField()
     class Meta:

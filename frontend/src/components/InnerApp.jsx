@@ -11,19 +11,25 @@ import { MiniDrawer } from "./Navbar/FullNav";
 import { CardDetail } from "./CardDetail/CardDetail";
 import { CardEdit } from "./CardDetail/CardEdit";
 import { ListEdit } from "./ListEdit/ListEdit";
+import { NotAllowed } from "./NotAllowed";
+import { AdminPanel } from "./AdminPanel/AdminPanel";
+import { Dashboard } from "./Dashboard/Dashboard";
 
 export const InnerApp = () => {
     return (
             <MiniDrawer>
                 <Switch>
                     <PrivateRoute exact path="/home" component={Home} />
+                    <PrivateRoute exact path="/dashboard" component={Dashboard} />
                     <PrivateRoute exact path="/create_project" component={CreateProject} />
                     <PrivateRoute exact path="/project/:projectId" component={ProjectDetail} />
                     <PrivateRoute exact path="/project/:projectId/edit" component={ProjectEdit} />
                     <PrivateRoute exact path="/project/:projectId/:listId/edit" component={ListEdit} />
                     <PrivateRoute exact path="/project/:projectId/:listId/:cardId" component={CardDetail} />
                     <PrivateRoute exact path="/project/:projectId/:listId/:cardId/edit" component={CardEdit} />
+                    <PrivateRoute exact path="/admin" component={AdminPanel} />
 
+                    <PrivateRoute exact path="/not_allowed" component={NotAllowed} />
                     <PrivateRoute component={NotFound} />
                 </Switch>
             </MiniDrawer>

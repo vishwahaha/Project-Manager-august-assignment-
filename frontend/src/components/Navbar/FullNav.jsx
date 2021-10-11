@@ -28,6 +28,7 @@ import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import LogoutIcon from "@mui/icons-material/Logout";
 import HomeIcon from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 const drawerWidth = 240;
 
@@ -117,6 +118,10 @@ export const MiniDrawer = (props) => {
     const takeDashboard = () => {
         history.push("/dashboard");
     };
+
+    const takeAdmin = () => {
+        history.push("/admin");
+    }
 
     const logout = () => {
         logoutUser();
@@ -240,6 +245,14 @@ export const MiniDrawer = (props) => {
                             </ListItemIcon>
                             <ListItemText primary="Dashboard" />
                         </ListItem>
+                        {userData.user_type === "admin" &&
+                        <ListItem button onClick={takeAdmin}>
+                            <ListItemIcon>
+                                <AdminPanelSettingsIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Admin panel" />
+                        </ListItem>
+                        }       
                     </List>
                     <Divider />
                     <List>

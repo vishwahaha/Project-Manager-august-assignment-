@@ -60,6 +60,9 @@ export const CreateCardModal = (props) => {
                 console.log(res);
                 if(res.status === 201){
                     setReqLoading(false);
+                    setCardTitle("");
+                    setCardDesc("");
+                    setAssignees([]);
                     props.updateDOM();
                     props.close();
                 }
