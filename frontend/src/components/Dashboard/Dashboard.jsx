@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Container, Box, Tab, Tabs, } from "@mui/material";
+import { Container, Box, Tab, Tabs, Grid, } from "@mui/material";
 import { DashCard } from "./DashCard";
 import { Loading } from "../Login/Loading";
 import { UserContext } from "../../utils/hooks/UserContext";
@@ -94,9 +94,10 @@ export const Dashboard = () => {
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start', width: 'fit-content', margin: 'auto', }}>
+
+                <Grid container spacing={1} sx={{ margin: 'auto', pl: 3, pr:3, }}>
                     {pendingCards.map((card, idx) => {
-                        return <Box key={idx} sx={{ m: 1,  }}>
+                        return <Grid item key={idx} xs={12} md={4} lg={3}>
                             <DashCard
                                     project={card.project}
                                     listId={card.list}
@@ -106,17 +107,17 @@ export const Dashboard = () => {
                                     desc={card.desc}
                                     finishedStatus={card.finished_status}
                                 />
-                                </Box>
+                                </Grid>
                     })
                     }
-                </Box>
+                </Grid>
             </TabPanel>
 
             <TabPanel value={value} index={1}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', }}>
+            <Grid container spacing={1} sx={{ margin: 'auto', pl: 3, pr:3, }}>
                     {finishedCards.map((card, idx) => {
-                        return <DashCard
-                                    key={idx}
+                        return <Grid item key={idx} xs={12} md={4} lg={3}>
+                            <DashCard
                                     project={card.project}
                                     listId={card.list}
                                     cardId={card.id}
@@ -125,9 +126,10 @@ export const Dashboard = () => {
                                     desc={card.desc}
                                     finishedStatus={card.finished_status}
                                 />
+                                </Grid>
                     })
                     }
-            </Box>
+                </Grid>
             </TabPanel>
         </Container>
     );

@@ -174,6 +174,7 @@ export const ListCard = (props) => {
                         <Box>
                             {(userData.user_type==="admin" || userData.user_id===props.creator.user_id || userData.user_id===props.project.creator.user_id) &&
                             <IconButton 
+                                disabled={userData.is_disabled}
                                 sx={{zIndex: 999,}}
                                 color="primary"
                                 onClick={(e) => {
@@ -187,6 +188,7 @@ export const ListCard = (props) => {
                             }   
                             {(userData.user_type==="admin" || userData.user_id===props.creator.user_id || userData.user_id===props.project.creator.user_id) &&
                             <IconButton
+                                disabled={userData.is_disabled}
                                 color="error"
                                 size="large"
                                 onClick={(e) => {

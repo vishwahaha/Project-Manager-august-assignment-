@@ -67,6 +67,7 @@ export const CardDetail = () => {
                            userData.user_id===card.creator.user_id || 
                            userData.user_id===card.project_creator.user_id) &&
                         <Button 
+                            disabled={userData.is_disabled}
                             endIcon={<EditIcon />} 
                             sx={{ mr: 1, }}
                             onClick={() => {

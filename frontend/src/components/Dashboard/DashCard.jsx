@@ -71,6 +71,7 @@ export const DashCard = (props) => {
                 minWidth: 250,
                 height: 200,
                 cursor: "pointer",
+                m: 'auto',
             }}
             onClick={handleClick}
             className={myStyles.cardHover}

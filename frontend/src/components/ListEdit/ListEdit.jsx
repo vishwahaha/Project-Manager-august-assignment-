@@ -70,7 +70,7 @@ export const ListEdit = () => {
     }
     else {
 
-        if(!(userData.user_type==="admin" || userData.user_id===list.creator.user_id || userData.user_id===list.project_creator.user_id)){
+        if(!(userData.user_type==="admin" || userData.user_id===list.creator.user_id || userData.user_id===list.project_creator.user_id) || userData.is_disabled){
             return <NotAllowed />
         }
 

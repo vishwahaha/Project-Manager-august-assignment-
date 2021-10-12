@@ -44,7 +44,7 @@ export const ProjectCard = (props) => {
     <Box className={myStyles.limitHeight}>
       <Card 
         variant="outlined" 
-        sx={{ backgroundColor: '#f2f2f2', borderRadius: 5, borderColor: '#b0b0b0', width: 260, }}
+        sx={{ backgroundColor: '#f2f2f2', borderRadius: 5, borderColor: '#b0b0b0', width: 260, m: 'auto',  }}
         onClick={handleClick}
         className={myStyles.cardHover}
       >

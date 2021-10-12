@@ -38,7 +38,7 @@ export const CardEdit = () => {
     }
 
     else{
-        if(!(userData.user_type==='admin' || userData.user_id===card.creator.user_id || userData.user_id===card.project_creator.user_id)){
+        if(!(userData.user_type==='admin' || userData.user_id===card.creator.user_id || userData.user_id===card.project_creator.user_id) || userData.is_disabled){
             return <NotAllowed />
         }
         else

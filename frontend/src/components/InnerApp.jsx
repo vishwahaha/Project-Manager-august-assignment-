@@ -1,7 +1,6 @@
 import React from "react";
 import { Home } from "./Home/Home";
-import { Navbar } from "./Navbar/Navbar";
-import { Switch, Route } from "react-router-dom";
+import { Switch, } from "react-router-dom";
 import PrivateRoute from "../utils/PrivateRoute";
 import { CreateProject } from "./CreateProject/CreateProject";
 import { ProjectDetail } from "./ProjectDetail/ProjectDetail";

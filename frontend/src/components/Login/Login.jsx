@@ -35,7 +35,7 @@ export const Login = () => {
         <div className="login-page-wrapper">
             <ThemeProvider theme={headingTheme}>
                 <Typography variant="h1" align="center" color="#6956C9" sx={{ fontWeight: 900, }} gutterBottom>
-                    Project Manager
+                    Sorted
                 </Typography>
             </ThemeProvider>
             <div className="login-form">

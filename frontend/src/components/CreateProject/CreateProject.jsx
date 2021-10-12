@@ -21,6 +21,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 //For rich text field.
 import ReactQuill from "react-quill";
 import { ListSearchItem } from "./ListSearchItem";
+import { NotAllowed } from "../NotAllowed";
 import { UserContext, UserData } from "../../utils/hooks/UserContext";
 import EditorToolbar, { modules, formats } from "../../utils/EditorToolbar";
 import "react-quill/dist/quill.snow.css";
@@ -135,6 +136,11 @@ export const CreateProject = () => {
 
     const myStyles = useStyles();
 
+    if(userData.is_disabled){
+        return <NotAllowed />
+    }
+
+    else
     return (
         <div>
             <Backdrop

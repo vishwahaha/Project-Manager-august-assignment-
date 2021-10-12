@@ -266,6 +266,7 @@ export const ProjectDetail = () => {
                         {(userData.user_type === "admin" || userData.user_id === project.creator.user_id) &&
                         <Box>
                             <Button 
+                                disabled={userData.is_disabled}
                                 size="large" 
                                 endIcon={<SettingsIcon />} 
                                 sx={{ textTransform: 'none', }}
@@ -344,6 +345,7 @@ export const ProjectDetail = () => {
                                             <Box>
                                                 {(list.creator === userData.user_id || userData.user_type==="admin" || project.creator.user_id === userData.user_id) &&
                                                 <IconButton 
+                                                    disabled={userData.is_disabled}
                                                     size="large"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -355,6 +357,7 @@ export const ProjectDetail = () => {
                                                 }
                                                 {(list.creator === userData.user_id || userData.user_type==="admin" || project.creator.user_id === userData.user_id) &&
                                                 <IconButton 
+                                                    disabled={userData.is_disabled}
                                                     size="large"
                                                     color="error"
                                                     onClick={(e) => {
@@ -398,6 +401,7 @@ export const ProjectDetail = () => {
                                                     }}
                                                 >
                                                     <Button 
+                                                        disabled={userData.is_disabled}
                                                         endIcon={<AddBoxIcon />} 
                                                         sx={{ fontSize: 18, }}
                                                         onClick={() => addNewCard(list.id)}
@@ -437,6 +441,7 @@ export const ProjectDetail = () => {
                             <Box>
                                 <Box sx={{ cursor: 'default', width: '100%', height: '100%', textAlign: 'center',}}>
                                     <Button     
+                                        disabled={userData.is_disabled}
                                         endIcon={<PlaylistAddIcon />}
                                         onClick={addNewList}
                                     >

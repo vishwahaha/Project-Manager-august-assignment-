@@ -29,6 +29,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import HomeIcon from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 
 const drawerWidth = 240;
 
@@ -119,6 +120,10 @@ export const MiniDrawer = (props) => {
         history.push("/dashboard");
     };
 
+    const takeNewProject = () => {
+        history.push('/create_project');
+    }
+
     const takeAdmin = () => {
         history.push("/admin");
     }
@@ -192,7 +197,7 @@ export const MiniDrawer = (props) => {
                                         component="div"
                                         sx={{ flexGrow: 1, fontWeight: 600 }}
                                     >
-                                        Project Manager
+                                        Sorted
                                     </Typography>
                                 </ThemeProvider>
                             </Box>
@@ -244,6 +249,12 @@ export const MiniDrawer = (props) => {
                                 <DashboardIcon />
                             </ListItemIcon>
                             <ListItemText primary="Dashboard" />
+                        </ListItem>
+                        <ListItem disabled={userData.is_disabled} button onClick={takeNewProject}>
+                            <ListItemIcon>
+                                <CreateNewFolderIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Add a new project" />
                         </ListItem>
                         {userData.user_type === "admin" &&
                         <ListItem button onClick={takeAdmin}>

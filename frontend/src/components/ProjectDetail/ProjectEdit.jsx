@@ -83,8 +83,7 @@ export const ProjectEdit = () => {
     if (pageLoading) {
         return <Loading />;
     } else {
-
-        if( !(userData.user_type === "admin" || userData.user_id === project.creator.user_id) ){
+        if( !(userData.user_type === "admin" || userData.user_id === project.creator.user_id) || userData.is_disabled ){
             return <NotAllowed />
         }
         else
