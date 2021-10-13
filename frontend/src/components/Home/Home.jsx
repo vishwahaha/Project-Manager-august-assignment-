@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Box, Typography, Container, Tab, Tabs, Grid } from "@mui/material";
+import { Box, Container, Tab, Tabs, } from "@mui/material";
 import PropTypes from "prop-types";
-import { makeStyles } from "@mui/styles";
 import { UserContext } from "../../utils/hooks/UserContext";
-import { ProjectCard } from "./ProjectCard";
-import { ProjectCardPlaceholder } from "./ProjectCardPlaceholder";
+import { HomeCards } from "./HomeCards";
 import axios from "axios";
 
 function TabPanel(props) {
@@ -42,12 +40,20 @@ function a11yProps(index) {
 
 
 export const Home = () => {
+
     const { user } = useContext(UserContext);
+
     const [projMsg, setMsg] = useState(null);
     const [finishedProjects, setFinishedProjects] = useState("initial");
     const [ongoingProjects, setOngoingProjects] = useState("initial");
+
     const [noFP, setFP] = useState(false);
     const [noOP, setOP] = useState(false);
+
+    const [value, setValue] = useState(0);
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
 
     useEffect(() => {
         async function getProjectDetails() {
@@ -95,136 +101,6 @@ export const Home = () => {
     const threePlaceholders = [0, 0, 0];
     const fourPlaceholders = [0, 0, 0, 0];
 
-    const useStyles = makeStyles({
-        horizontalScroll: {
-            overflowX: "auto",
-            height: "fit-content",
-            maxHeight: 230,
-            borderRadius: 10,
-            "&::-webkit-scrollbar": {
-                width: "7px",
-                height: "7px",
-                backgroundColor: "#F5F5F5",
-            },
-            "&::-webkit-scrollbar-track": {
-                "-webkit-box-shadow": "inset 0 0 6px rgba(0,0,0,0.3)",
-                backgroundColor: "#F5F5F5",
-            },
-            "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#6956C9",
-            },
-        },
-        gridContainer: {
-            padding: 25,
-            margin: 10,
-            marginLeft: -10,
-        },
-    });
-
-    const myStyles = useStyles();
-
-    // return (
-    //     <Box sx={{ maxWidth: "100vw", overflowX: "hidden" }}>
-    //         <Box className={myStyles.gridContainer}>
-    //             {noOP ? (
-    //                 <Typography
-    //                     variant="h3"
-    //                     align="center"
-    //                     sx={{ margin: 5, color: "#757575" }}
-    //                 >
-    //                     {projMsg == null ? "No ongoing projects." : projMsg}
-    //                 </Typography>
-    //             ) : (
-    //                 <Stack
-    //                     spacing={2}
-    //                     overflow={false}
-    //                     direction="row"
-    //                     className={myStyles.horizontalScroll}
-    //                     alignItems="flex-start"
-    //                 >
-    //                     {ongoingProjects === "initial"
-    //                         ? fourPlaceholders.map((itr, index) => {
-    //                               return <ProjectCardPlaceholder key={index} />;
-    //                           })
-    //                         : ongoingProjects.map((project, index) => {
-    //                               return (
-    //                                   <ProjectCard
-    //                                       key={index}
-    //                                       projectId={project.id}
-    //                                       creator={project.creator.full_name}
-    //                                       title={project.name}
-    //                                       description={project.wiki}
-    //                                       finishedStatus={
-    //                                           project.finished_status
-    //                                       }
-    //                                   />
-    //                               );
-    //                           })}
-    //                 </Stack>
-    //             )}
-    //         </Box>
-
-    //         <Box sx={{ display: "flex", justifyContent: "center", padding: 5 }}>
-    //             <Button
-    //                 variant="outlined"
-    //                 sx={{ textTransform: "none" }}
-    //                 color="success"
-    //                 endIcon={<CreateNewFolderIcon />}
-    //             >
-    //                 <Typography variant="h5">
-    //                     <Link style={{ all: "inherit" }} to="/create_project">
-    //                         Add a new project
-    //                     </Link>
-    //                 </Typography>
-    //             </Button>
-    //         </Box>
-
-    //         <Box className={myStyles.gridContainer}>
-    //             {noFP ? (
-    //                 <Typography
-    //                     variant="h3"
-    //                     align="center"
-    //                     sx={{ margin: 5, color: "#757575" }}
-    //                 >
-    //                     {projMsg == null ? "No finished projects." : projMsg}
-    //                 </Typography>
-    //             ) : (
-    //                 <Stack
-    //                     spacing={2}
-    //                     overflow={false}
-    //                     direction="row"
-    //                     className={myStyles.horizontalScroll}
-    //                     alignItems="flex-start"
-    //                 >
-    //                     {finishedProjects === "initial"
-    //                         ? threePlaceholders.map((itr, index) => {
-    //                               return <ProjectCardPlaceholder key={index} />;
-    //                           })
-    //                         : finishedProjects.map((project, index) => {
-    //                               return (
-    //                                   <ProjectCard
-    //                                       key={index}
-    //                                       projectId={project.id}
-    //                                       creator={project.creator.full_name}
-    //                                       title={project.name}
-    //                                       description={project.wiki}
-    //                                       finishedStatus={
-    //                                           project.finished_status
-    //                                       }
-    //                                   />
-    //                               );
-    //                           })}
-    //                 </Stack>
-    //             )}
-    //         </Box>
-    //     </Box>
-    // );
-
-    const [value, setValue] = useState(0);
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
-
     return (
         <Container maxWidth="lg" sx={{  }}>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -238,80 +114,23 @@ export const Home = () => {
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
-
-                <Grid container spacing={1} sx={{ margin: 'auto', pl: 3, pr:3, }}>
-                    {noOP ?
-                        <Typography
-                            variant="h3"
-                            align="center"
-                            sx={{ margin: 5, color: "#757575" }}
-                        >
-                            {projMsg == null ? "No finished projects." : projMsg}
-                        </Typography>
-                    :
-                    ongoingProjects === "initial"
-                            ? fourPlaceholders.map((itr, index) => {
-                                  return (
-                                    <Grid item key={index} xs={12} md={4} lg={3}>
-                                        <ProjectCardPlaceholder />
-                                    </Grid>
-                                  );
-                              })
-                            : ongoingProjects.map((project, index) => {
-                                  return (
-                                    <Grid item key={index} xs={12} md={4} lg={3}>
-                                        <ProjectCard
-                                            projectId={project.id}
-                                            creator={project.creator.full_name}
-                                            title={project.name}
-                                            description={project.wiki}
-                                            finishedStatus={
-                                                project.finished_status
-                                            }
-                                        />
-                                    </Grid>
-                                  );
-                              })
-                    }
-                </Grid>
+                <HomeCards
+                    cards={ongoingProjects}
+                    noCards={noOP}
+                    noCardMessage="No ongoing projects"
+                    projMsg={projMsg}
+                    placeholder={fourPlaceholders}
+                />
             </TabPanel>
 
             <TabPanel value={value} index={1}>
-            <Grid container spacing={1} sx={{ margin: 'auto', pl: 3, pr:3, }}>
-                {noFP ?
-                <Typography
-                    variant="h3"
-                    align="center"
-                    sx={{ margin: 5, color: "#757575" }}
-                >
-                    {projMsg == null ? "No finished projects." : projMsg}
-                </Typography>
-                :
-                finishedProjects === "initial"
-                                ? threePlaceholders.map((itr, index) => {
-                                    return (
-                                        <Grid item key={index} xs={12} md={4} lg={3}>
-                                            <ProjectCardPlaceholder />
-                                        </Grid>
-                                    );
-                                })
-                                : finishedProjects.map((project, index) => {
-                                    return (
-                                        <Grid item key={index} xs={12} md={4} lg={3}>
-                                            <ProjectCard
-                                                projectId={project.id}
-                                                creator={project.creator.full_name}
-                                                title={project.name}
-                                                description={project.wiki}
-                                                finishedStatus={
-                                                    project.finished_status
-                                                }
-                                            />
-                                        </Grid>
-                                    );
-                                })
-                }
-                </Grid>
+                <HomeCards
+                    cards={finishedProjects}
+                    noCards={noFP}
+                    noCardMessage="No finished projects"
+                    projMsg={projMsg}
+                    placeholder={threePlaceholders}
+                />
             </TabPanel>
         </Container>
     );

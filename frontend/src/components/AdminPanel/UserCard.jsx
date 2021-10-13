@@ -142,6 +142,7 @@ export const UserCard = (props) => {
                             onChange={handleChange}
                             input={
                                 <OutlinedInput
+                                    size="small"
                                     label="User type"
                                 />
                             }
