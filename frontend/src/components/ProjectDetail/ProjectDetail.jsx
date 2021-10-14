@@ -81,16 +81,16 @@ export const ProjectDetail = () => {
                 .then((res) => {
                     if (res.status === 200) {
                         setProject(res.data);
-                        setPageLoading(false);
                         setNotfound(false);
-                    } else {
                         setPageLoading(false);
+                    } else {
                         setNotfound(true);
+                        setPageLoading(false);
                     }
                 })
                 .catch((err) => {
-                    setPageLoading(false);
                     setNotfound(true);
+                    setPageLoading(false);
                 });
         }
         getProjectData();
@@ -424,7 +424,8 @@ export const ProjectDetail = () => {
                                                                     return member.user_id === card.creator.user_id
                                                                 })
                                                             } 
-                                                            desc={card.desc} 
+                                                            desc={card.desc}
+                                                            dueDate={card.due_date} 
                                                             finishedStatus={card.finished_status} 
                                                             cardDel={afterCardDel}
                                                         />

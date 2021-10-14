@@ -135,15 +135,21 @@ export const ListCard = (props) => {
                     height: "100%",
                 }}
             >
-                <CardContent>
+                <CardContent sx={{ pt: 1, }}>
                     <Typography variant="h6" noWrap component="div">
                         {props.title}
                     </Typography>
                     <Typography
-                        sx={{ mb: 1, fontSize: 15 }}
+                        sx={{ fontSize: 14 }}
                         color="text.secondary"
                     >
                         Created by {props.creator.full_name}
+                    </Typography>
+                    <Typography
+                        sx={{ fontSize: 13 }}
+                        color="text.secondary"
+                    >
+                        Due date: {props.dueDate}
                     </Typography>
                     <Typography
                         className={myStyles.multiLineEllipsis}

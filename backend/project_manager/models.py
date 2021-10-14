@@ -16,6 +16,7 @@ class user(AbstractBaseUser):
         null = True,
     )
     enrolment_number = models.IntegerField(default = 00000000)
+    email = models.EmailField(null = True)
 
     USER_TYPES = [
         ('admin', 'admin'),
@@ -47,6 +48,19 @@ class user(AbstractBaseUser):
 
     def __str__(self):
         return f"This is {self.full_name}({self.enrolment_number})'s data"
+
+class Settings(models.Model):
+
+    user = models.OneToOneField(
+        user,
+        on_delete = models.CASCADE,
+        primary_key = True,
+    )
+
+    email_on_card_assignment = models.BooleanField(default = True)
+    email_on_project_add = models.BooleanField(default = True)
+    email_on_disable = models.BooleanField(default = True)
+
 
 class project(models.Model):
 
@@ -120,6 +134,8 @@ class card(models.Model):
     )
 
     assignees = models.ManyToManyField(user)
+
+    due_date = models.DateField(auto_now = False, auto_now_add = False,)
 
     #False = incomplete, True = complete
     finished_status = models.BooleanField(default = False)

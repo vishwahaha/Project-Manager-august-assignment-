@@ -1,3 +1,4 @@
+from django import urls
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
@@ -19,6 +20,7 @@ urlpatterns = [
 
     #Users
     path('', include(r2.urls)),
+    path('settings/', views.SettingsDetail.as_view(), name = 'settings'),
     path('user_details', views.user_details, name = 'user_details'),
 
     #projects, lists, cards

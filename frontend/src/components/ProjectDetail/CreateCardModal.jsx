@@ -19,6 +19,9 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { LoadingButton } from "@mui/lab";
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { DatePicker } from "@mui/lab";
 import { createTheme } from "@mui/material/styles";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -32,6 +35,8 @@ export const CreateCardModal = (props) => {
     const [titleError, setTitleError] = useState(false);
 
     const [cardDesc, setCardDesc] = useState("");
+    const [dueDate, setDueDate] = useState({});
+    const [dateError, setDateError] = useState(false);
 
     const [reqLoading, setReqLoading] = useState(false);
     const [postError, setPostError] = useState(false);
@@ -41,9 +46,14 @@ export const CreateCardModal = (props) => {
     const [assignees, setAssignees] = useState([]);
 
     const handleSubmit = async(e) => {
+        let today = new Date();
+        today.setHours(0,0,0,0);
         e.preventDefault();
         if(cardTitle.trim() === ""){
             setTitleError(true);
+        }
+        else if(dueDate === {} || !(dueDate instanceof Date && !isNaN(dueDate.valueOf())) || dueDate < today){
+            setDateError(true);
         }
         else{
             setReqLoading(true);
@@ -53,6 +63,7 @@ export const CreateCardModal = (props) => {
                 assignees: assignees.map((assignee) => {
                     return assignee.user_id
                 }),
+                due_date: `${dueDate.getFullYear()}-${dueDate.getMonth() + 1}-${dueDate.getDate()}`,
             } 
             return await axios
             .post(`/project/${props.projectId}/list/${props.listId}/card/`, data, { headers: JSON.parse(user) })
@@ -73,7 +84,6 @@ export const CreateCardModal = (props) => {
             .catch((err) => {
                 setReqLoading(false);
                 setPostError(true);
-                console.log(err);
             });
         }
     }
@@ -154,8 +164,9 @@ export const CreateCardModal = (props) => {
                                 sx={{ width: isPhone ? '100%' : '90%', mt: 1, mb: 1, }}
                                 error={titleError}
                                 helperText={
-                                    titleError ? "A title is required" : postError ? "Some error occured" : ""
+                                    titleError ? "A title is required" :  ""
                                 }
+                                size="small"
                                 id="cardTitle"
                                 label="Card title"
                                 value={cardTitle}
@@ -166,6 +177,24 @@ export const CreateCardModal = (props) => {
                                 }}
                                 autoComplete="off"
                             />
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <DatePicker
+                                    label="Due date"
+                                    inputFormat="dd-MM-yyyy"
+                                    format="DD-MM-YYYY"
+                                    mask="__-__-____"
+                                    value={dueDate}
+                                    minDate={new Date()}
+                                    onChange={date => {setDueDate(date); setDateError(false)}}
+                                    renderInput={(params) => <TextField 
+                                                                {...params} 
+                                                                error={dateError} 
+                                                                size="small" 
+                                                                helperText={dateError ? "Due date is required and should be in correct format" : ""}
+                                                                sx={{ width: isPhone ? '100%' : '90%', mt: 1, mb: 1, }}
+                                                            />}
+                                />
+                            </LocalizationProvider>
                             <Autocomplete
                                 multiple
                                 fullWidth
@@ -264,9 +293,9 @@ export const CreateCardModal = (props) => {
                                 }}
                             />
                         </Box>
-                        <Box sx={{ width: isPhone ? '100%' : '50%', }}>
+                        <Box sx={{ width: isPhone ? '100%' : '50%', display: 'flex', alignItems: 'center', }}>
                             <TextField
-                                sx={{ width: '100%', }}
+                                sx={{ width: '100%',}}
                                 multiline
                                 rows={6}
                                 id="cardDesc"
@@ -279,6 +308,11 @@ export const CreateCardModal = (props) => {
                             />
                         </Box>
                     </Box>
+                    {postError &&
+                    <Typography color="error">
+                        Some error occurred. Check if all the fields are filled correctly.
+                    </Typography>
+                    }   
                     <Box
                         sx={{
                             display: "flex",

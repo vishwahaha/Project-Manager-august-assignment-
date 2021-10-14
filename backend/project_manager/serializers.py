@@ -8,6 +8,7 @@ class userSerializer(serializers.ModelSerializer):
     display_picture = serializers.ReadOnlyField()
     enrolment_number = serializers.ReadOnlyField()
     online_status = serializers.ReadOnlyField()
+    email = serializers.EmailField(read_only = True)
     class Meta:
         model = models.user
         fields = [
@@ -18,6 +19,17 @@ class userSerializer(serializers.ModelSerializer):
             'user_type',
             'online_status',
             'is_disabled',
+            'email',
+        ]
+
+class SettingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Settings
+        fields = [
+            'email_on_card_assignment',
+            'email_on_project_add',
+            'email_on_disable',
         ]
 
 class commentSerializer(serializers.ModelSerializer):
@@ -43,6 +55,7 @@ class cardSerializer(serializers.ModelSerializer):
     creator = userSerializer(read_only = True)
     list = serializers.PrimaryKeyRelatedField(read_only = True)
     id = serializers.ReadOnlyField()
+    due_date = serializers.DateField(format='%d-%m-%Y')
     class Meta:
         model = models.card
         fields = [
@@ -53,6 +66,7 @@ class cardSerializer(serializers.ModelSerializer):
             'creator',
             'assignees',
             'finished_status',
+            'due_date',
         ]
 class listSerializer(serializers.ModelSerializer):
 

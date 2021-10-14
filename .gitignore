@@ -3,3 +3,4 @@ migrations/
 oauth2_params.py
 __pycache__/
 *.pyc
+.env

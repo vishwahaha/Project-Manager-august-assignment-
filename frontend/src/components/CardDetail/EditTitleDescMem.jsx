@@ -18,6 +18,9 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { LoadingButton } from "@mui/lab";
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { DatePicker } from "@mui/lab";
 import { createTheme } from "@mui/material/styles";
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -32,12 +35,14 @@ export const EditTitleDescMem = (props) => {
     const { user } = useContext(UserContext);
     const { projectId, listId, cardId } = useParams();
     let history = useHistory();
-
+    
     const [cardTitle, setCardTitle] = useState(props.card.title);
     const [cardDesc, setCardDesc] = useState(props.card.desc);
+    const [dueDate, setDueDate] = useState(new Date(props.card.due_date.split("-").reverse().join("-")));
     const [finishedStatus, setFinishedStatus] = useState(props.card.finished_status);
     const [assignees, setAssignees] = useState(props.card.assignees);
 
+    const [dateError, setDateError] = useState(false);
     const [titleError, setTitleError] = useState(false);
     const [reqLoading, setReqLoading] = useState(false);
     const [postError, setPostError] = useState(false);
@@ -66,9 +71,14 @@ export const EditTitleDescMem = (props) => {
     const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
 
     const handleSubmit = async(e) => {
+        let today = new Date();
+        today.setHours(0,0,0,0);
         e.preventDefault();
         if(cardTitle.trim() === ""){
             setTitleError(true);
+        }
+        else if(dueDate === {} || !(dueDate instanceof Date && !isNaN(dueDate.valueOf())) || dueDate < today){
+            setDateError(true);
         }
         else{
             setReqLoading(true);
@@ -79,15 +89,17 @@ export const EditTitleDescMem = (props) => {
                     return assignee.user_id
                 }),
                 finished_status: finishedStatus,
+                due_date: `${dueDate.getFullYear()}-${dueDate.getMonth() + 1}-${dueDate.getDate()}`,
             }
             return await axios
             .patch(`/project/${projectId}/list/${listId}/card/${cardId}/`, data, { headers: JSON.parse(user), })
             .then((res) => {
                 setReqLoading(false);
+                setPostError(false);
             })
             .catch((err) => {
                 setPostError(true);
-                console.log(err);
+                setReqLoading(false);
             })
         }
     }
@@ -172,12 +184,11 @@ export const EditTitleDescMem = (props) => {
                                 mt: 1,
                                 mb: 1,
                             }}
+                            size="small"
                             error={titleError}
                             helperText={
                                 titleError
                                     ? "A title is required"
-                                    : postError
-                                    ? "Some error occured"
                                     : ""
                             }
                             id="cardTitle"
@@ -190,6 +201,24 @@ export const EditTitleDescMem = (props) => {
                             }}
                             autoComplete="off"
                         />
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <DatePicker
+                                    label="Due date"
+                                    inputFormat="dd-MM-yyyy"
+                                    format="DD-MM-YYYY"
+                                    mask="__-__-____"
+                                    value={dueDate}
+                                    minDate={new Date()}
+                                    onChange={date => {setDueDate(date); setDateError(false)}}
+                                    renderInput={(params) => <TextField 
+                                                                {...params} 
+                                                                error={dateError} 
+                                                                size="small" 
+                                                                helperText={dateError ? "Due date is required and should be in correct format" : ""}
+                                                                sx={{ width: isPhone ? '100%' : '90%', mt: 1, mb: 1, }}
+                                                            />}
+                                />
+                            </LocalizationProvider>
                         <Autocomplete
                             multiple
                             fullWidth
@@ -305,6 +334,11 @@ export const EditTitleDescMem = (props) => {
                         />
                     </Box>
                 </Box>
+                {postError &&
+                    <Typography color="error">
+                        Some error occurred. Check if all the fields are filled correctly.
+                    </Typography>
+                }
                 <Box
                     sx={{
                         display: "flex",

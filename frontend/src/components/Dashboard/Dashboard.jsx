@@ -55,6 +55,7 @@ export const Dashboard = () => {
             .get('/dashboard', { headers: JSON.parse(user), })
             .then((res) => {
                 if(res.status === 200){
+                    console.log(res.data);
                     setPendingCards(res.data.filter((card) => {
                         return card.finished_status === false;
                     }));
@@ -105,6 +106,7 @@ export const Dashboard = () => {
                                     title={card.title}
                                     creator={card.creator}
                                     desc={card.desc}
+                                    dueDate={card.due_date}
                                     finishedStatus={card.finished_status}
                                 />
                                 </Grid>
@@ -124,6 +126,7 @@ export const Dashboard = () => {
                                     title={card.title}
                                     creator={card.creator}
                                     desc={card.desc}
+                                    dueDate={card.due_date}
                                     finishedStatus={card.finished_status}
                                 />
                                 </Grid>

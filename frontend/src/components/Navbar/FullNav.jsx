@@ -30,6 +30,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const drawerWidth = 240;
 
@@ -128,6 +129,10 @@ export const MiniDrawer = (props) => {
         history.push("/admin");
     }
 
+    const takeSettings = () => {
+        history.push('/settings');
+    }
+
     const logout = () => {
         logoutUser();
         window.location.reload();
@@ -157,7 +162,7 @@ export const MiniDrawer = (props) => {
             <AppBar
                 position="fixed"
                 open={open}
-                sx={{ backgroundColor: "#6956C9" }}
+                sx={{ backgroundColor: "#6956C9", boxShadow: 'none', }}
             >
                 <Toolbar>
                     <IconButton
@@ -267,6 +272,12 @@ export const MiniDrawer = (props) => {
                     </List>
                     <Divider />
                     <List>
+                        <ListItem button onClick={takeSettings}>
+                            <ListItemIcon>
+                                <SettingsIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Settings" />
+                        </ListItem>
                         <ListItem button onClick={logout}>
                             <ListItemIcon>
                                 <LogoutIcon />

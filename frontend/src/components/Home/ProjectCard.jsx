@@ -55,13 +55,11 @@ export const ProjectCard = (props) => {
           <Typography sx={{ mb: 1.5 }} color="text.secondary">
             Leader: {props.creator}
           </Typography>
-          {/* <Typography className={myStyles.multiLineEllipsis} variant="body2"> */}
             <div
               dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(props.description)}} 
               style={{ overflow: 'hidden', maxHeight: 60, }}
             >
             </div>
-          {/* </Typography> */}
         </CardContent>
         <CardActions>
           <Chip

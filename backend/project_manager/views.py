@@ -1,5 +1,7 @@
+from django.core.mail import send_mail
+from django.conf import settings
+
 #REST Framework imports
-from django.db.models import query
 from rest_framework import generics, status
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -32,8 +34,7 @@ def oauth2_login(req):
         'code' : req.GET.get('code', None),
     }
 
-    res = requests.post(
-        "https://channeli.in/open_auth/token/", data = parameters)
+    res = requests.post("https://channeli.in/open_auth/token/", data = parameters)
 
     if(res.status_code == 200):
         data = res.json()
@@ -46,12 +47,21 @@ def oauth2_login(req):
 
         data_dict = data_res.json()
 
+        email= ''
+        if data_dict['contactInformation']['emailAddress'] != None:
+            email = data_dict['contactInformation']['emailAddress']
+        elif data_dict['contactInformation']['instituteWebmailAddress'] != None:
+            email = data_dict['contactInformation']['instituteWebmailAddress']
+        else:
+            email = None
+
         if data_dict['person']['displayPicture'] is None:
             defaults = {
                 'user_id' : data_dict['userId'],
                 'full_name' : data_dict['person']['fullName'],
                 'display_picture': None,
                 'enrolment_number' : data_dict['student']['enrolmentNumber'],
+                'email': email,
             }
         
         else:
@@ -60,6 +70,7 @@ def oauth2_login(req):
                 'full_name' : data_dict['person']['fullName'],
                 'display_picture' : 'https://channeli.in/' + str(data_dict['person']['displayPicture'] or ''),
                 'enrolment_number' : data_dict['student']['enrolmentNumber'],
+                'email': email,
             }
 
         if data_dict['person']['roles'][1]['role'] == 'Maintainer' and data_dict['person']['roles'][1]['activeStatus'] == 'ActiveStatus.IS_ACTIVE':
@@ -67,6 +78,9 @@ def oauth2_login(req):
                 defaults = defaults,
                 user_id = data_dict['userId']
             )
+            if not models.Settings.objects.filter(user = user_obj).exists():
+                models.Settings.objects.create(user = user_obj)
+
             user_token = Token.objects.get_or_create(user = user_obj)[0]
             redirect_header = {
                 'Authorization' : 'Token ' + user_token.key
@@ -136,7 +150,7 @@ def user_details(req):
 class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.userSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, IsAdminElseReadOnly]
     http_method_names = ['get', 'head', 'patch',]
     queryset = models.user.objects.all()
 
@@ -150,6 +164,20 @@ class UserViewSet(viewsets.ModelViewSet):
                 if serializer.validated_data['is_disabled']: 
                     serializer.validated_data['user_type'] = 'normal'
                     serializer.save()
+                    user_settings = models.Settings.objects.get(user = instance)
+                    if user_settings.email_on_disable:
+                        if instance.email is not None:
+                            send_mail(
+                                subject='Disabled on Sorted.',
+                                message=f'''Hello,
+For some reason you have been disabled by {request.user.full_name}.
+If you were an admin, this status has also been removed.
+Now, you can't perform any edit/create/delete action.
+                                        ''',
+                                from_email=settings.EMAIL_HOST_USER,
+                                recipient_list=[instance.email,],
+                            )
+                    return super().partial_update(request, *args, **kwargs)
             except:
                 pass
 
@@ -165,6 +193,18 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             return super().partial_update(request, *args, **kwargs)
 
+class SettingsDetail(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = serializers.SettingSerializer
+    permission_classes = [IsAuthenticated, ]
+    http_method_names = ['get', 'head', 'patch',]
+    queryset = models.Settings.objects.all()
+    
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = generics.get_object_or_404(queryset, user = self.request.user)
+        return obj
+
 class ProjectViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.projectSerializer
@@ -174,6 +214,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        if user.user_type == 'admin':
+            return models.project.objects.all()
         return user.project_set
 
     def retrieve(self, request, *args, **kwargs):
@@ -188,11 +230,34 @@ class ProjectViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         member_list = serializer.validated_data['members']
+        
         member_list.append(self.request.user)
-        serializer.save(creator = self.request.user, members = member_list)
+        member_list = list(set(member_list))
+
+        recipient_list = []
+
+        for member in member_list:
+            user_settings = models.Settings.objects.get(user = member)
+            if user_settings.email_on_project_add:
+                if member.email is not None:
+                    if member.user_id != self.request.user.user_id:
+                        recipient_list.append(member.email)
+        
+        project = serializer.save(creator = self.request.user, members = member_list)
+
+        send_mail(
+            subject='You have been added to a project!',
+            message=f'''Hello,
+You have been added to {serializer.validated_data["name"]}, a project created by {self.request.user.full_name}.
+Click this link to view this project: http://localhost:3000/project/{project.id}
+                    ''',
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=recipient_list,
+        )
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
+        old_members = instance.members.all()
         serializer = self.serializer_class(instance, data=request.data, partial=True)
 
         if serializer.is_valid():
@@ -204,10 +269,33 @@ class ProjectViewSet(viewsets.ModelViewSet):
                             if assignee not in project_members:
                                 assignee.card_set.remove(card) 
                 instance.save()  
+
+                recipient_list = []
+                new_members = [e for e in project_members if e not in old_members]
+
+                for mem in new_members:
+                    user_settings = models.Settings.objects.get(user = mem)
+                    if user_settings.email_on_project_add:
+                        if mem.email is not None:
+                            recipient_list.append(mem.email)
+
+                send_mail(
+                    subject='You have been added to a project!',
+                    message=f'''Hello,
+You have been added to {serializer.validated_data["name"]}, a project created by {instance.creator.full_name}.
+Click this link to view this project: http://localhost:3000/project/{instance.id}
+                            ''',
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=recipient_list,
+                )
+
+                return super().partial_update(request, *args, **kwargs)
                                        
             except: 
                 pass
+
             return super().partial_update(request, *args, **kwargs)
+
         else:
             return super().partial_update(request, *args, **kwargs)
 
@@ -260,12 +348,31 @@ class CardCreateOrList(generics.ListCreateAPIView):
         assignees = serializer.validated_data['assignees']
         assignees = list(set(assignees))
         proj_members = project.members.all()
+
         """
         Only allow assignees which are members of the project
         """
         filtered_assignees = [x for x in assignees if x in proj_members]
+
+        recipient_list = []
+        for assignee in filtered_assignees:
+            user_settings = models.Settings.objects.get(user = assignee)
+            if user_settings.email_on_card_assignment:
+                if assignee.email is not None:
+                    recipient_list.append(assignee.email)
         
-        serializer.save(creator = self.request.user, list = list_obj, assignees = filtered_assignees)
+        card = serializer.save(creator = self.request.user, list = list_obj, assignees = filtered_assignees)
+
+        send_mail(
+            subject='A card has been assigned to you.',
+            message=f'''Hello,
+You have been assigned a card in {card.list.project.name}(project), 
+This task is due on {card.due_date}.
+For further details, visit: http://localhost:3000/project/{card.list.project.id}/{card.list.id}/{card.id}
+                    ''',
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=recipient_list,            
+        )
         
 class CardDetail(generics.RetrieveUpdateDestroyAPIView):
 
@@ -294,6 +401,49 @@ class CardDetail(generics.RetrieveUpdateDestroyAPIView):
         project_creator = serializers.userSerializer(project.creator).data
         res_dict['project_creator'] = project_creator
         return Response(res_dict, status=status.HTTP_200_OK)
+
+    def partial_update(self, request, *args, **kwargs):
+
+        instance = self.get_object()
+        old_assignees = instance.assignees.all()
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            try:
+                assignees = serializer.validated_data['assignees']
+                recipient_list = []
+                new_assignees = [e for e in assignees if e not in old_assignees]
+
+                for assignee in new_assignees:
+                    user_settings = models.Settings.objects.get(user = assignee)
+                    if user_settings.email_on_card_assignment:
+                        if assignee.email is not None:
+                            recipient_list.append(assignee.email)
+
+                due_date = ''
+                try:
+                    due_date = serializer.validated_data['due_date']
+                except:
+                    due_date = instance.due_date
+
+
+                send_mail(
+                    subject='A card has been assigned to you.',
+                    message=f'''Hello,
+You have been assigned a card in {instance.list.project.name}(project), 
+This task is due on {due_date}.
+For further details, visit: http://localhost:3000/project/{instance.list.project.id}/{instance.list.id}/{instance.id}
+                            ''',
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=recipient_list,            
+                )
+
+                return super().partial_update(request, *args, **kwargs)
+
+            except:
+                return super().partial_update(request, *args, **kwargs)
+
+        return super().partial_update(request, *args, **kwargs)
 
 
 class CommentCreateOrList(generics.ListCreateAPIView):

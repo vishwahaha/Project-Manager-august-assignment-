@@ -13,6 +13,7 @@ import { ListEdit } from "./ListEdit/ListEdit";
 import { NotAllowed } from "./NotAllowed";
 import { AdminPanel } from "./AdminPanel/AdminPanel";
 import { Dashboard } from "./Dashboard/Dashboard";
+import { Settings } from "./Settings/Settings";
 
 export const InnerApp = () => {
     return (
@@ -27,6 +28,7 @@ export const InnerApp = () => {
                     <PrivateRoute exact path="/project/:projectId/:listId/:cardId" component={CardDetail} />
                     <PrivateRoute exact path="/project/:projectId/:listId/:cardId/edit" component={CardEdit} />
                     <PrivateRoute exact path="/admin" component={AdminPanel} />
+                    <PrivateRoute exact path="/settings" component={Settings} />
 
                     <PrivateRoute exact path="/not_allowed" component={NotAllowed} />
                     <PrivateRoute component={NotFound} />
