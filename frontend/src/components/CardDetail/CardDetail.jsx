@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, createContext } from "react";
 import { UserContext, UserData } from "../../utils/hooks/UserContext";
 import { Container, Box, Typography, Chip, Button } from "@mui/material";
 import { useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import { Loading } from "../Login/Loading";
+import { CommentSection } from "./CommentSection";
 import { ProjectMember } from "../ProjectDetail/ProjectMember";
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import EditIcon from '@mui/icons-material/Edit';
@@ -18,6 +19,8 @@ export const CardDetail = () => {
     const { projectId, listId, cardId } = useParams();
     let history = useHistory();
 
+    const socket = new WebSocket(`ws://localhost:8000/ws/card/${cardId}/`);
+
     useEffect(() => {
         async function getCard() {
             return await axios
@@ -25,7 +28,6 @@ export const CardDetail = () => {
                     headers: JSON.parse(user),
                 })
                 .then((res) => {
-                    console.log(res.data);
                     setCard(res.data);
                     setLoading(false);
                 })
@@ -34,6 +36,13 @@ export const CardDetail = () => {
                 });
         }
         getCard();
+
+        return () => {
+            socket.send(JSON.stringify({
+                'command': 'disconnect',
+            }));
+        }
+
     }, [user]);
 
     if (loading) {
@@ -98,7 +107,7 @@ export const CardDetail = () => {
                 </Box>
 
                 <Box sx={{ mt: 2 }}>
-                    <Typography variant="h3">Assignees:</Typography>
+                    <Typography variant="h4">Assignees:</Typography>
                     <Box
                         sx={{
                             display: "flex",
@@ -128,6 +137,10 @@ export const CardDetail = () => {
                         }
                     </Box>
                 </Box>
+                <CommentSection
+                    socket={socket}
+                    cardId={cardId}
+                />
             </Container>
         );
 };

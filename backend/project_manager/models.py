@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from djrichtextfield.models import RichTextField
+from django.utils import timezone
 
 # Create your models here.
 
@@ -163,6 +164,8 @@ class comment(models.Model):
         on_delete = models.CASCADE,
         related_name = 'commented_cards',
     )
+
+    timestamp = models.DateTimeField(default = timezone.now)
 
     is_edited = models.BooleanField(default = False)
     

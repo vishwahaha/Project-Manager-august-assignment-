@@ -25,6 +25,7 @@ export const HomeCards = (props) => {
                     justifyContent: "center",
                 }}
             >
+            {props.cards !== "initial" &&
             <TextField 
                 size="small" 
                 label="Search projects"
@@ -38,6 +39,7 @@ export const HomeCards = (props) => {
                     ),
                 }}
             />
+            }
             </Box>
             <Grid container spacing={1} sx={{ margin: "auto", pl: 3, pr: 3 }}>
                 {props.noCards ? (

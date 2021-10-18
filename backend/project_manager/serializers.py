@@ -34,8 +34,7 @@ class SettingSerializer(serializers.ModelSerializer):
 
 class commentSerializer(serializers.ModelSerializer):
 
-    commentor = serializers.PrimaryKeyRelatedField(read_only = True)
-    card = serializers.PrimaryKeyRelatedField(read_only = True)
+    commentor = userSerializer(read_only = True)
     id = serializers.ReadOnlyField()
     is_edited = serializers.ReadOnlyField()
 
@@ -45,7 +44,7 @@ class commentSerializer(serializers.ModelSerializer):
             'id',
             'commentor',
             'content',
-            'card',
+            'timestamp',
             'is_edited',
         ]
 
@@ -55,7 +54,7 @@ class cardSerializer(serializers.ModelSerializer):
     creator = userSerializer(read_only = True)
     list = serializers.PrimaryKeyRelatedField(read_only = True)
     id = serializers.ReadOnlyField()
-    due_date = serializers.DateField(format='%d-%m-%Y')
+    due_date = serializers.DateField(format = '%d-%m-%Y')
     class Meta:
         model = models.card
         fields = [
