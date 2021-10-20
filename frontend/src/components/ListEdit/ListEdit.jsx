@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext, UserData } from "../../utils/hooks/UserContext";
-import { Container, Box, TextField, Typography, Button, useMediaQuery } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
+import { Container, Box, TextField, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useParams, useHistory } from "react-router-dom";
 import { NotAllowed } from "../NotAllowed";
@@ -24,7 +23,7 @@ export const ListEdit = () => {
     const [titleError, setTitleError] = useState(false);
     const [reqLoading, setReqLoading] = useState(false);
 
-    const theme = createTheme();
+    const theme = useTheme();
     const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
 
     useEffect(() => {
@@ -81,7 +80,7 @@ export const ListEdit = () => {
                 sx={{
                     maxWidth: '90vw',
                     borderRadius: 5,
-                    backgroundColor: "white",
+                    backgroundColor: theme.palette.background.paper,
                     margin: 'auto',
                     height: "fit-content",
                     position: "absolute",
@@ -100,7 +99,7 @@ export const ListEdit = () => {
                         mb: 2,
                     }}
                 >
-                    <Typography variant="h3">
+                    <Typography color="text.primary" variant="h3">
                         Edit list
                     </Typography>
                     <Button 

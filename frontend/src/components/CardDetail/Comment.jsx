@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { UserData } from "../../utils/hooks/UserContext";
-import { Box, Avatar, Typography, IconButton, TextField, Button } from "@mui/material";
+import { Box, Avatar, Typography, IconButton, TextField, Button, useTheme } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -11,6 +11,8 @@ export const Comment = (props) => {
 
     const [editing, setEditing] = useState(false);
     const [content, setContent] = useState(props.comment.content);
+
+    const theme = useTheme();
 
     const handleEdit = () => {
         setEditing(false);
@@ -30,14 +32,14 @@ export const Comment = (props) => {
     return (
         <Box
             sx={{
-                backgroundColor: "#ededed;",
+                backgroundColor: theme.palette.background.default,
                 borderRadius: 5,
                 p: 1,
                 mt: 1,
                 mb: 1,
             }}
         >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap',}}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', }}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     {props.comment.commentor.display_picture === null ? (
                         <Avatar
@@ -58,7 +60,7 @@ export const Comment = (props) => {
                             src={props.comment.commentor.display_picture}
                         />
                     )}
-                    <Typography ml={1} variant="h6">
+                    <Typography color="text.primary" ml={1} variant="h6">
                         {props.comment.commentor.full_name}
                     </Typography>
                 </Box>
@@ -101,14 +103,14 @@ export const Comment = (props) => {
 
             <Box sx={{ p: 1 }}>
                 {!editing ? 
-                <Typography variant="body1">
+                <Typography color="text.primary" variant="body1">
                     {props.comment.content}
                 </Typography>
                 :
                 <Box>
                     <TextField
                         multiline
-                        sx={{ width: '100%', backgroundColor: 'white', }}   
+                        sx={{ width: '100%', backgroundColor: theme.palette.background.paper, }}   
                         value={content}
                         onChange={e => setContent(e.target.value)}
                     />

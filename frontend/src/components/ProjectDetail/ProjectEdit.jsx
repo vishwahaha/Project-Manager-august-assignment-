@@ -15,8 +15,8 @@ import {
     Dialog,
     DialogActions,
     DialogTitle,
+    useTheme
 } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import WarningIcon from "@mui/icons-material/Warning";
 import { NotAllowed } from "../NotAllowed";
@@ -33,7 +33,7 @@ export const ProjectEdit = () => {
 
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    const theme = createTheme();
+    const theme = useTheme();
     const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
 
     const dialogClose = () => {
@@ -131,7 +131,7 @@ export const ProjectEdit = () => {
                         history.push(`/project/${project.id}`);
                     }}
                 >
-                    <Typography variant="h2">Edit project</Typography>
+                    <Typography color="text.primary" variant="h2">Edit project</Typography>
                     <Box>
                         <Button endIcon={<ExitToAppIcon />}>
                             Back to project
@@ -147,13 +147,13 @@ export const ProjectEdit = () => {
                         mt: 2,
                         mb: 2,
                         borderRadius: 5,
-                        backgroundColor: "white",
+                        backgroundColor: theme.palette.background.paper,
                         padding: "2%",
                         overflowX: "hidden",
                         overflowY: "auto",
                     }}
                 >
-                    <Typography variant="h4">Other actions:</Typography>
+                    <Typography color="text.primary" variant="h4">Other actions:</Typography>
                     <Button 
                         endIcon={<WarningIcon />} 
                         color="error"

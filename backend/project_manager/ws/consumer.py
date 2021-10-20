@@ -71,7 +71,7 @@ class CommentConsumer(WebsocketConsumer):
             )
             serializer = serializers.commentSerializer(comment)
             res_dict = serializer.data
-            res_dict['variant'] = 'self_new_comment'
+            res_dict['variant'] = 'new_comment'
             res_dict['type'] = 'send_info'
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,

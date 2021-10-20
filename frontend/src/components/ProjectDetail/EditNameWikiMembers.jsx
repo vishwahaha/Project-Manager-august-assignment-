@@ -14,9 +14,9 @@ import {
     Backdrop,
     CircularProgress,
     FormControlLabel,
+    useTheme
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { createTheme } from "@mui/material/styles";
 import { UserContext, UserData } from "../../utils/hooks/UserContext";
 import ReactQuill from "react-quill";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
@@ -45,7 +45,7 @@ export const EditNameWikiMembers = (props) => {
 
     const [submitted, setSubmitted] = useState(false);
 
-    const theme = createTheme();
+    const theme = useTheme();
     const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
 
     useEffect(() => {
@@ -105,19 +105,14 @@ export const EditNameWikiMembers = (props) => {
             "&::-webkit-scrollbar": {
                 width: "7px",
                 height: "7px",
-                backgroundColor: "#F5F5F5",
-            },
-            "&::-webkit-scrollbar-track": {
-                "-webkit-box-shadow": "inset 0 0 6px rgba(0,0,0,0.3)",
-                backgroundColor: "#F5F5F5",
             },
             "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#6956C9",
+                backgroundColor: theme.palette.primary.main,
             },
         },
     });
-
     const myStyles = useStyles();
+
     return (
         <div>
             <Backdrop
@@ -135,7 +130,7 @@ export const EditNameWikiMembers = (props) => {
                     height: "fit-content",
                     margin: "auto",
                     borderRadius: 5,
-                    backgroundColor: "white",
+                    backgroundColor: theme.palette.background.paper,
                     padding: "1%",
                     overflowX: "hidden",
                     overflowY: "auto",
@@ -356,7 +351,6 @@ export const EditNameWikiMembers = (props) => {
                                 }}
                             >
                                 <FormControlLabel
-                                    sx={{ margin: 0 }}
                                     value="project_status"
                                     control={
                                         <Checkbox
@@ -369,6 +363,7 @@ export const EditNameWikiMembers = (props) => {
                                         />
                                     }
                                     label="Is this project finished?"
+                                    sx={{ color: theme.palette.text.primary, }}
                                     labelPlacement="start"
                                 />
                             </Box>
@@ -415,7 +410,7 @@ export const EditNameWikiMembers = (props) => {
                     </form>
                     <Typography
                         textAlign="center"
-                        color="red"
+                        color="error"
                         sx={{ display: postError ? "initial" : "none" }}
                     >
                         Some error occurred.

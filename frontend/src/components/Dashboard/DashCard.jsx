@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import {
     Card,
     CardContent,
@@ -7,22 +7,17 @@ import {
     Typography,
     Box,
     Skeleton,
-    IconButton,
-    Dialog,
-    DialogActions,
-    DialogTitle,
-    Button,
+    useTheme
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import EditIcon from '@mui/icons-material/Edit';
 import { useHistory } from "react-router-dom";
-import { UserData, UserContext } from "../../utils/hooks/UserContext";
-import DeleteIcon from '@mui/icons-material/Delete';
-import axios from "axios";
+
 
 export const DashCard = (props) => {
 
     let history = useHistory();
+
+    const theme = useTheme();
 
     const handleClick = () => {
         history.push(
@@ -44,17 +39,16 @@ export const DashCard = (props) => {
             "-webkit-box-orient": "vertical",
         },
         finishedChip: {
-            backgroundColor: "#a8eda6",
+            backgroundColor: theme.palette.finished.main,
+            color: theme.palette.finished.text,
         },
         ongoingChip: {
-            backgroundColor: "#ff7d7d",
-            color: "white",
+            backgroundColor: theme.palette.pending.main,
+            color: theme.palette.pending.text,
         },
         cardHover: {
             "&:hover": {
-                backgroundColor: props.finishedStatus ? "#f5fff0" : "#f5f5f5",
-                boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                borderColor: props.finishedStatus ? "#f5fff0" : "#f5f5f5",
+                boxShadow: theme.shadows[3],
             },
         },
     });
@@ -65,7 +59,7 @@ export const DashCard = (props) => {
         <Card
             variant="outlined"
             sx={{
-                backgroundColor: props.finishedStatus ? "#f3ffed" : "#f7f7f7",
+                backgroundColor: theme.palette.background.paper,
                 borderRadius: 5,
                 width: 250,
                 minWidth: 250,
@@ -86,7 +80,7 @@ export const DashCard = (props) => {
                 }}
             >
                 <CardContent>
-                    <Typography variant="h6" noWrap component="div">
+                    <Typography color="text.primary" variant="h6" noWrap component="div">
                         {props.title}
                     </Typography>
                     <Typography
@@ -104,6 +98,7 @@ export const DashCard = (props) => {
                     <Typography
                         className={myStyles.multiLineEllipsis}
                         variant="body2"
+                        color="text.primary"
                     >
                         {props.desc}
                     </Typography>
@@ -156,13 +151,13 @@ export const DashCardSkeleton = () => {
                 }}
             >
                 <CardContent>
-                    <Typography variant="h5" noWrap component="div">
+                    <Typography color="text.primary" variant="h5" noWrap component="div">
                         <Skeleton variant="text" />
                     </Typography>
                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
                         <Skeleton variant="text" />
                     </Typography>
-                    <Typography variant="body2">
+                    <Typography color="text.primary" variant="body2">
                         <Skeleton variant="text" />
                         <Skeleton variant="text" />
                     </Typography>

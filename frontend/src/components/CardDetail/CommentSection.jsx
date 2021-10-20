@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, } from "react";
-import { UserContext, UserData } from "../../utils/hooks/UserContext";
-import { Box, Typography, TextField, } from "@mui/material";
+import { UserData } from "../../utils/hooks/UserContext";
+import { Box, Typography, TextField, useTheme } from "@mui/material";
 import { Comment } from "./Comment";
 import { LoadingButton } from "@mui/lab";
 import moment from 'moment';
@@ -15,28 +15,39 @@ export const CommentSection  = (props) => {
     const [commentLoading, setCommentLoading] = useState(false);
     const [newComment, setNewComment] = useState("");
 
+    const theme = useTheme();
+
     useEffect(() => {
+
         props.socket.onopen = () => {
-            props.socket.send(JSON.stringify({'command': 'load_comments', }));
+            props.socket.send(JSON.stringify({ 'command': 'load_comments', }));
         }
+
         props.socket.onmessage = (e) => {
             let data = JSON.parse(e.data);
-            console.log(data);
 
             if(data.variant === 'loaded_comments'){
-                data.comments.map((comment, idx) => {
-                    comment.timestamp = moment(comment.timestamp).local().format('hh:mm A, DD-MM-YYYY');
-                    if(idx === data.comments.length - 1){
-                        setComments(data.comments);
-                        setLoaded(true);
-                    }
-                });
+                if(data.comments.length === 0){
+                    setLoaded(true);
+
+                }
+                else{
+                    data.comments.map((comment, idx) => {
+                        comment.timestamp = moment(comment.timestamp).local().format('hh:mm A, DD-MM-YYYY');
+                        if(idx === data.comments.length - 1){
+                            setComments(data.comments);
+                            setLoaded(true);
+                        }
+                    });
+                }
             }
 
-            if(data.variant === 'self_new_comment'){
+            if(data.variant === 'new_comment'){
+                if(data.commentor.user_id === userData.user_id){
+                    setNewComment('');
+                    setCommentLoading(false);
+                }
                 data.timestamp = moment(data.timestamp).local().format('hh:mm A, DD-MM-YYYY');
-                setNewComment('');
-                setCommentLoading(false);
                 setComments(prev => [...prev, data]);
             }
 
@@ -82,12 +93,12 @@ export const CommentSection  = (props) => {
                 mb: 2,
             }}
         >
-            <Typography variant="h4">
+            <Typography color="text.primary" variant="h4">
                 Comments:
             </Typography>
             <Box
                 sx={{
-                    backgroundColor: 'white',
+                    backgroundColor: theme.palette.background.paper,
                     borderRadius: 5,
                     p: 2,
                     pb: 1,
@@ -109,7 +120,7 @@ export const CommentSection  = (props) => {
                                 onChange={e => setNewComment(e.target.value)}
                             />
                             <LoadingButton
-                                disabled={newComment === ""}
+                                disabled={newComment.trim() === ""}
                                 loading={commentLoading}
                                 variant="contained"
                                 color="success"

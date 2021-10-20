@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Grid, Typography, TextField, InputAdornment } from "@mui/material";
+import { Box, Grid, Typography, TextField, InputAdornment, useTheme } from "@mui/material";
 import { ProjectCard } from "./ProjectCard";
 import { ProjectCardPlaceholder } from "./ProjectCardPlaceholder";
 import SearchIcon from '@mui/icons-material/Search';
@@ -8,6 +8,8 @@ import SearchIcon from '@mui/icons-material/Search';
 export const HomeCards = (props) => {
 
     const [search, setSearch] = useState("");
+    
+    const theme = useTheme();
 
     const handleSearch = (e) => {
         setSearch(e.target.value);
@@ -46,7 +48,7 @@ export const HomeCards = (props) => {
                     <Typography
                         variant="h3"
                         align="center"
-                        sx={{ margin: 5, color: "#757575" }}
+                        sx={{ margin: 5, color: theme.palette.text.secondary }}
                     >
                         {props.projMsg == null ? props.noCardMessage : props.projMsg}
                     </Typography>

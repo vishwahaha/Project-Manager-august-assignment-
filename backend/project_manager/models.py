@@ -58,6 +58,10 @@ class Settings(models.Model):
         primary_key = True,
     )
 
+    #Dark mode
+    dark_mode = models.BooleanField(default = False)
+
+    #Email settings
     email_on_card_assignment = models.BooleanField(default = True)
     email_on_project_add = models.BooleanField(default = True)
     email_on_disable = models.BooleanField(default = True)

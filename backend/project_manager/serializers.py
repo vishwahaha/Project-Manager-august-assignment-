@@ -30,6 +30,7 @@ class SettingSerializer(serializers.ModelSerializer):
             'email_on_card_assignment',
             'email_on_project_add',
             'email_on_disable',
+            'dark_mode',
         ]
 
 class commentSerializer(serializers.ModelSerializer):

@@ -1,9 +1,7 @@
 import React, { useContext } from "react";
-
-import { UserContext, UserData } from "../../utils/hooks/UserContext";
+import { UserData } from "../../utils/hooks/UserContext";
 import useLogout from "../../utils/hooks/useLogout";
 import { useHistory } from "react-router";
-
 import {
     useMediaQuery,
     createTheme,
@@ -16,11 +14,11 @@ import {
     ListItem,
     ListItemText,
     Avatar,
+    useTheme,
 } from "@mui/material";
-import { styled, ThemeProvider } from "@mui/material/styles";
+import { styled, } from "@mui/material/styles";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
-
 import { ListItemIcon } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -104,12 +102,7 @@ export const MiniDrawer = (props) => {
     const { logoutUser } = useLogout();
     let history = useHistory();
 
-    const theme = createTheme();
-    const headingTheme = createTheme({
-        typography: {
-            fontFamily: ["Glory", "sans-serif"].join(","),
-        },
-    });
+    const theme = useTheme();
 
     const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -162,7 +155,7 @@ export const MiniDrawer = (props) => {
             <AppBar
                 position="fixed"
                 open={open}
-                sx={{ backgroundColor: "#6956C9", boxShadow: 'none', }}
+                sx={{ boxShadow: 'none', }}
             >
                 <Toolbar>
                     <IconButton
@@ -193,18 +186,20 @@ export const MiniDrawer = (props) => {
                                     alignItems: "center",
                                 }}
                             >
-                                <ThemeProvider theme={headingTheme}>
                                     <AppRegistrationIcon
                                         sx={{ fontSize: 35, mr: 2 }}
                                     />
                                     <Typography
                                         variant={isPhone ? "h5" : "h4"}
                                         component="div"
-                                        sx={{ flexGrow: 1, fontWeight: 600 }}
+                                        sx={{ 
+                                            flexGrow: 1, 
+                                            fontWeight: 600,
+                                            fontFamily: ["Glory", "sans-serif"].join(","),
+                                        }}
                                     >
                                         Sorted
                                     </Typography>
-                                </ThemeProvider>
                             </Box>
                         </Box>
                     )}
@@ -235,7 +230,7 @@ export const MiniDrawer = (props) => {
                                     src={userData.display_picture}
                                 />
                             )}
-                            <Typography>{userData.full_name}</Typography>
+                            <Typography color="text.primary">{userData.full_name}</Typography>
                         </Box>
                         <IconButton onClick={handleDrawerClose}>
                             <ChevronLeftIcon />
@@ -288,7 +283,12 @@ export const MiniDrawer = (props) => {
                 </Drawer>
             )}
 
-            <Box component="main" sx={{ flexGrow: 1 }}>
+            <Box 
+                component="main" 
+                sx={{ 
+                    flexGrow: 1, 
+                }}
+            >
                 <DrawerHeader />
                 {props.children}
             </Box>

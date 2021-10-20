@@ -15,6 +15,7 @@ import {
     Checkbox,
     useMediaQuery,
     FormControlLabel,
+    useTheme
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { LoadingButton } from "@mui/lab";
@@ -49,26 +50,22 @@ export const EditTitleDescMem = (props) => {
 
     const [open, setOpen] = useState(false);
     
+    const theme = useTheme();
+    const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
+
     const useStyles = makeStyles({
         scrollBar : {
             "&::-webkit-scrollbar": {
                 width: "7px",
                 height: "7px",
-                backgroundColor: "#F5F5F5",
-            },
-            "&::-webkit-scrollbar-track": {
-                "-webkit-box-shadow": "inset 0 0 6px rgba(0,0,0,0.3)",
-                backgroundColor: "#F5F5F5",
             },
             "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#6956C9",
+                backgroundColor: theme.palette.primary.main,
             },
         },
     });
 
     const myStyles = useStyles();
-    const theme = createTheme();
-    const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
 
     const handleSubmit = async(e) => {
         let today = new Date();
@@ -110,12 +107,12 @@ export const EditTitleDescMem = (props) => {
             maxWidth="md"
             sx={{
                 borderRadius: 5,
-                backgroundColor: "white",
+                backgroundColor: theme.palette.background.paper,
                 margin: 'auto',
                 height: "fit-content",
                 display: "flex",
                 flexDirection: "column",
-                mt: '10%',
+                mt: '4%',
             }}
         >
             <Box 
@@ -133,7 +130,7 @@ export const EditTitleDescMem = (props) => {
                     align="left"
                     sx={{
                         fontWeight: 600,
-                        color: "#828282",
+                        color: theme.palette.text.disabled,
                         m: 1,
                     }}
                 >
@@ -157,6 +154,7 @@ export const EditTitleDescMem = (props) => {
                         />
                     }
                     label="Finished?"
+                    sx={{ color: theme.palette.text.primary, }}
                     labelPlacement="start"
                 />
             </Box>

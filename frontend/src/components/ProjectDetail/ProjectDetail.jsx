@@ -8,11 +8,9 @@ import { ListCard, } from "./ListCard";
 import { CreateCardModal } from "./CreateCardModal";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import { ListDelDialog } from "./ListDelDialog";
-
 import axios from "axios";
 import DOMPurify from "dompurify";
 import { useHistory } from "react-router-dom";
-
 import {
     Container,
     Box,
@@ -24,18 +22,17 @@ import {
     TextField,
     Card,
     IconButton,
+    useTheme
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import MuiAccordion from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import { makeStyles, styled } from "@mui/styles";
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import SettingsIcon from '@mui/icons-material/Settings';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
-
 
 export const ProjectDetail = () => {
     const { user } = useContext(UserContext);
@@ -63,13 +60,7 @@ export const ProjectDetail = () => {
     const [getNewCard, setGetNewCard] = useState(false);
     const [cardDel, setCardDel] = useState(false);
 
-    const theme = createTheme({
-        palette: {
-          primary: {
-            main: '#6956C9',
-          },
-        },
-    });
+    const theme = useTheme();
     const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
 
     useEffect(() => {
@@ -180,14 +171,9 @@ export const ProjectDetail = () => {
             "&::-webkit-scrollbar": {
                 width: "7px",
                 height: "7px",
-                backgroundColor: "#F5F5F5",
-            },
-            "&::-webkit-scrollbar-track": {
-                "-webkit-box-shadow": "inset 0 0 6px rgba(0,0,0,0.3)",
-                backgroundColor: "#F5F5F5",
             },
             "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#6956C9",
+                backgroundColor: theme.palette.primary.main,
             },
         },  
     });
@@ -216,7 +202,7 @@ export const ProjectDetail = () => {
       
     const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
         padding: theme.spacing(2),
-        borderTop: '1px solid rgba(0, 0, 0, .125)',
+        borderTop: `1px solid ${theme.palette.text.disabled}`,
     }));
       
 
@@ -228,7 +214,6 @@ export const ProjectDetail = () => {
         return <Loading />;
     } else {
         return (
-            <ThemeProvider theme={theme}>
             <Container
                 sx={{
                     mt: 3,
@@ -260,7 +245,7 @@ export const ProjectDetail = () => {
                             flexWrap: 'wrap', 
                         }}
                     >
-                        <Typography variant="h2">
+                        <Typography variant="h2" color="text.primary">
                             {project.name}
                         </Typography>
                         {(userData.user_type === "admin" || userData.user_id === project.creator.user_id) &&
@@ -279,14 +264,14 @@ export const ProjectDetail = () => {
                         </Box>
                         }   
                     </Box>
-                    <Typography variant="h6" color="#878787">
+                    <Typography variant="h6" color="text.secondary">
                         Leader: {project.creator.full_name}
-                    </Typography>
+                    </Typography>   
                 </Box>
                 <div
                     className={myStyles.scrollBar}
                     style={{
-                        backgroundColor: "white",
+                        backgroundColor: '#fafafa',
                         borderRadius: "10px",
                         overflow: "auto",
                         padding: "10px",
@@ -298,12 +283,12 @@ export const ProjectDetail = () => {
                     }}
                 ></div>
                 <Box sx={{ mt: 5, mb: 5 }}>
-                    <Typography variant="h4">Project members</Typography>
+                    <Typography color="text.primary" variant="h4">Project members</Typography>
                     <Box
                         sx={{
                             display: "flex",
                             flexWrap: "wrap",
-                            backgroundColor: "#fafafa",
+                            backgroundColor: theme.palette.background.paper,
                             borderRadius: 5,
                         }}
                     >
@@ -325,7 +310,7 @@ export const ProjectDetail = () => {
                 </Box>
 
                 <Box sx={{ mt: 5, mb: 5 }}>
-                    <Typography variant="h4">Lists</Typography>
+                    <Typography color="text.primary" variant="h4">Lists</Typography>
                     <Box>
                         {project.list_set.map((list, idx) => {
                             return (
@@ -341,7 +326,7 @@ export const ProjectDetail = () => {
                                         expandIcon={<ExpandMoreIcon />}
                                     >
                                         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', }}>
-                                            <Typography>{list.title}</Typography>
+                                            <Typography color="text.primary">{list.title}</Typography>
                                             <Box>
                                                 {(list.creator === userData.user_id || userData.user_type==="admin" || project.creator.user_id === userData.user_id) &&
                                                 <IconButton 
@@ -390,7 +375,7 @@ export const ProjectDetail = () => {
                                                 <Card
                                                     variant="outlined"
                                                     sx={{
-                                                        backgroundColor: "#f7f7f7",
+                                                        backgroundColor: theme.palette.background.default,
                                                         borderRadius: 5,
                                                         width: 250,
                                                         minWidth: 250,
@@ -437,7 +422,7 @@ export const ProjectDetail = () => {
                                 </Accordion>
                             );
                         })}
-                        <Box sx={{ backgroundColor: 'white', borderRadius: 2, m: '7px', p: 1, }} >
+                        <Box sx={{ backgroundColor: theme.palette.background.paper, borderRadius: 2, m: '7px', p: 1, }} >
                             {!addingNewList ?
                             <Box>
                                 <Box sx={{ cursor: 'default', width: '100%', height: '100%', textAlign: 'center',}}>
@@ -495,7 +480,7 @@ export const ProjectDetail = () => {
                     </Box>
                 </Box>
             </Container>
-            </ThemeProvider>
         );
     }
 };
+

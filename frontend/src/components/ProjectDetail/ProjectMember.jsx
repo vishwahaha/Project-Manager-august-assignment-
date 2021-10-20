@@ -1,14 +1,17 @@
 import React from "react";
-import { Card, Chip, Typography, Avatar, Skeleton, Box } from "@mui/material";
+import { Chip, Typography, Avatar, Skeleton, Box, useTheme } from "@mui/material";
 
 export const ProjectMember = (props) => {
+
+    const theme = useTheme();
+
     return (
         <Box
             sx={{
                 display: "flex",
                 alignItems: "center",
                 borderRadius: 5,
-                backgroundColor: "#e8e8e8",
+                backgroundColor: theme.palette.background.default,
                 p: 1.5,
                 pr: 2,
                 margin: 1,
@@ -33,7 +36,7 @@ export const ProjectMember = (props) => {
                     <Avatar sx={{ mr: 1 }} src={props.avatar} />
                 )}
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
-                    <Typography variant="body1">{props.fullName}</Typography>
+                    <Typography color="text.primary" variant="body1">{props.fullName}</Typography>
                     <Box
                         sx={{
                             display: "flex",
@@ -41,7 +44,7 @@ export const ProjectMember = (props) => {
                             justifyContent: "space-between",
                         }}
                     >
-                        <Typography variant="caption">
+                        <Typography color="text.primary" variant="caption">
                             {props.enrolmentNumber}
                         </Typography>
                         {props.userType === "admin" && (
@@ -68,13 +71,16 @@ export const ProjectMember = (props) => {
 };
 
 export const ProjectMemberSkeleton = () => {
+
+    const theme = useTheme();
+
     return (
         <Box
             sx={{
                 display: "flex",
                 alignItems: "center",
                 borderRadius: 5,
-                backgroundColor: "#e8e8e8",
+                backgroundColor: theme.palette.background.default,
                 p: 1.5,
                 pr: 2,
                 margin: 1,
@@ -91,7 +97,7 @@ export const ProjectMemberSkeleton = () => {
             >
                 <Skeleton variant="circular" width={40} height={40} />
                 <Box sx={{ display: "flex", flexDirection: "column", ml: 1, }}>
-                    <Typography variant="body1">
+                    <Typography color="text.primary" variant="body1">
                         <Skeleton variant="text" width={100} />
                     </Typography>
                     <Box
@@ -101,7 +107,7 @@ export const ProjectMemberSkeleton = () => {
                             justifyContent: "space-between",
                         }}
                     >
-                        <Typography variant="caption">
+                        <Typography color="text.primary" variant="caption">
                             <Skeleton variant="text" width={60} />
                         </Typography>
                     </Box>

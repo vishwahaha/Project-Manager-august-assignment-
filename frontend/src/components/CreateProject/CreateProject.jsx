@@ -13,6 +13,7 @@ import {
     Avatar,
     Backdrop,
     CircularProgress,
+    useTheme
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -29,7 +30,7 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 
 export const CreateProject = () => {
-    const theme = createTheme();
+
     const { user } = useContext(UserContext);
     const { userData } = useContext(UserData);
     let history = useHistory();
@@ -49,6 +50,7 @@ export const CreateProject = () => {
     //State for backdrop
     const [submitted, setSubmitted] = useState(false);
 
+    const theme = useTheme();
     const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
 
     useEffect(() => {
@@ -108,6 +110,7 @@ export const CreateProject = () => {
     }
 
     theme.typography.h3 = {
+        ...theme.typography.h3,
         fontSize: "3rem",
         [theme.breakpoints.down("sm")]: {
             fontSize: "2rem",
@@ -115,21 +118,13 @@ export const CreateProject = () => {
     };
 
     const useStyles = makeStyles({
-        customFont: {
-            fontFamily: ["Balsamiq Sans", "cursive"].join(","),
-        },
         scrollBar: {
             "&::-webkit-scrollbar": {
                 width: "7px",
                 height: "7px",
-                backgroundColor: "#F5F5F5",
-            },
-            "&::-webkit-scrollbar-track": {
-                "-webkit-box-shadow": "inset 0 0 6px rgba(0,0,0,0.3)",
-                backgroundColor: "#F5F5F5",
             },
             "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#6956C9",
+                backgroundColor: theme.palette.primary.main,
             },
         },
     });
@@ -160,23 +155,19 @@ export const CreateProject = () => {
                     margin: "auto",
                     borderRadius: 5,
                     mt: "5%",
-                    backgroundColor: "white",
-                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                    backgroundColor: theme.palette.background.paper,
                     padding: "1%",
                     overflowX: "hidden",
                     overflowY: "auto",
                 }}
                 className={myStyles.scrollBar}
             >
-                <ThemeProvider theme={theme}>
-                    <Typography
-                        variant="h3"
-                        className={myStyles.customFont}
-                        sx={{ color: "#7d7d7d", fontWeight: 500 }}
-                    >
-                        Create a new project:
-                    </Typography>
-                </ThemeProvider>
+                <Typography
+                    variant="h3"
+                    sx={{ color: theme.palette.text.disabled, fontWeight: 500 }}
+                >
+                    Create a new project:
+                </Typography>
                 <Box sx={{ mt: 2 }}>
                     <form>
                         <Box
@@ -392,7 +383,7 @@ export const CreateProject = () => {
                                     </Box>
                                 ) : (
                                     <Box width={500}>
-                                        <Box sx={{ mt: 3, mb: 3, zIndex: 999 }}>
+                                        <Box sx={{ mt: 3, mb: 3, zIndex: 999, }}>
                                             <EditorToolbar />
                                             <ReactQuill
                                                 theme="snow"
@@ -417,13 +408,11 @@ export const CreateProject = () => {
                         >
                             <Button
                                 type="submit"
-                                className={myStyles.customFont}
                                 variant="text"
-                                color="secondary"
+                                color="primary"
                                 onClick={handleSubmit}
                                 sx={{
                                     textTransform: "none",
-                                    color: "#6956C9",
                                     fontSize: 21,
                                     fontWeight: 700,
                                 }}
@@ -434,7 +423,7 @@ export const CreateProject = () => {
                     </form>
                     <Typography
                         textAlign="center"
-                        color="red"
+                        color="error"
                         sx={{ display: postError ? "initial" : "none" }}
                     >
                         Some error occurred.

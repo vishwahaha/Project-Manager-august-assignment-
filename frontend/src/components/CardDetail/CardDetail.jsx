@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext, createContext } from "react";
+import React, { useState, useEffect, useContext, } from "react";
 import { UserContext, UserData } from "../../utils/hooks/UserContext";
-import { Container, Box, Typography, Chip, Button } from "@mui/material";
+import { Container, Box, Typography, Chip, Button, useTheme } from "@mui/material";
 import { useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import { Loading } from "../Login/Loading";
@@ -21,6 +21,8 @@ export const CardDetail = () => {
 
     const socket = new WebSocket(`ws://localhost:8000/ws/card/${cardId}/`);
 
+    const theme = useTheme();
+
     useEffect(() => {
         async function getCard() {
             return await axios
@@ -37,11 +39,11 @@ export const CardDetail = () => {
         }
         getCard();
 
-        return () => {
-            socket.send(JSON.stringify({
-                'command': 'disconnect',
-            }));
-        }
+        // return () => {
+        //     socket.send(JSON.stringify({
+        //         'command': 'disconnect',
+        //     }));
+        // }
 
     }, [user]);
 
@@ -50,14 +52,14 @@ export const CardDetail = () => {
     } else
         return (
             <Container maxWidth="lg" sx={{ maxWidth: "90vw", mt: 2 }}>
-                <Typography variant="h3">{card.title}</Typography>
+                <Typography color="text.primary" variant="h3">{card.title}</Typography>
                 <Box
                     sx={{
                         display: 'flex',
                         justifyContent: 'space-between',
                         flexWrap: 'wrap',
                         alignItems: 'center',
-                        backgroundColor: card.finished_status ? '#f3ffed' : 'white',
+                        backgroundColor: card.finished_status ? theme.palette.finished.bg : theme.palette.pending.bg,
                         borderRadius: 5, 
                         p: 2,
                         mt: 2, 
@@ -68,8 +70,8 @@ export const CardDetail = () => {
                         label={card.finished_status ? 'Done' : 'Pending'}
                         size="medium"
                         sx={{
-                            backgroundColor: card.finished_status ? '#a8eda6' : '#ff7d7d',
-                            color: card.finished_status ? 'black' : 'white',
+                            backgroundColor: card.finished_status ? theme.palette.finished.main : theme.palette.pending.main,
+                            color: card.finished_status ? theme.palette.finished.text : theme.palette.pending.text,
                         }}
                     />
                     <Box>{(userData.user_type==="admin" || 
@@ -98,21 +100,21 @@ export const CardDetail = () => {
                 </Box>
                 <Box
                     sx={{
-                        backgroundColor: "white",
+                        backgroundColor: theme.palette.background.paper,
                         borderRadius: 5,
                         p: 2,
                     }}
                 >
-                    <Typography variant="body1">{card.desc}</Typography>
+                    <Typography color="text.primary" variant="body1">{card.desc}</Typography>
                 </Box>
 
                 <Box sx={{ mt: 2 }}>
-                    <Typography variant="h4">Assignees:</Typography>
+                    <Typography color="text.primary" variant="h4">Assignees:</Typography>
                     <Box
                         sx={{
                             display: "flex",
                             flexWrap: "wrap",
-                            backgroundColor: "#fafafa",
+                            backgroundColor: theme.palette.background.paper,
                             borderRadius: 5,
                         }}
                     >
@@ -130,7 +132,7 @@ export const CardDetail = () => {
                         })}
                         {card.assignees.length===0 &&
                         <Box sx={{ p: 2, }}>
-                            <Typography variant="h4" sx={{ color: '#737373' }}>
+                            <Typography color="text.secondary" variant="h4">
                                 No assignees to this card.
                             </Typography>
                         </Box>

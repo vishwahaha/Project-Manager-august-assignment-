@@ -13,6 +13,7 @@ import {
     FormControlLabel,
     Switch,
     CircularProgress,
+    useTheme,
 } from "@mui/material";
 import axios from "axios";
 import { UserContext } from "../../utils/hooks/UserContext";
@@ -23,6 +24,8 @@ export const UserCard = (props) => {
 
     const [loading, setLoading] = useState(false);
     const [adminErr, setAdminErr] = useState(false);
+
+    const theme = useTheme();
 
     const handleChange = async(event) => {
         setAdminErr(false);
@@ -70,7 +73,7 @@ export const UserCard = (props) => {
     return (
         <Box
             sx={{
-                backgroundColor: "white",
+                backgroundColor: theme.palette.background.paper,
                 borderRadius: 3,
                 mt: 1.5,
                 mb: 1.5,
@@ -123,10 +126,10 @@ export const UserCard = (props) => {
                         />
                     )}
                     <Box>
-                        <Typography variant="body1">
+                        <Typography color="text.primary" variant="body1">
                             {props.user.full_name}
                         </Typography>
-                        <Typography variant="caption">
+                        <Typography color="text.primary" variant="caption">
                             {props.user.enrolment_number}
                         </Typography>
                     </Box>
@@ -162,6 +165,7 @@ export const UserCard = (props) => {
                         control={<Switch color="warning" checked={props.user.is_disabled} onChange={(e) => changeDisable(e)} />}
                         label="Disabled?"
                         labelPlacement="start"
+                        sx={{ color: theme.palette.text.primary, }}
                     />
                 </Box>
             </Box>

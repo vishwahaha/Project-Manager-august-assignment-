@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
+import { UserData } from "../utils/hooks/UserContext";
+import { DarkModeContext } from "./App";
 import { Home } from "./Home/Home";
 import { Switch, } from "react-router-dom";
 import PrivateRoute from "../utils/PrivateRoute";
@@ -16,6 +18,16 @@ import { Dashboard } from "./Dashboard/Dashboard";
 import { Settings } from "./Settings/Settings";
 
 export const InnerApp = () => {
+
+    const { userData, isLoading } = useContext(UserData);
+    const { setDarkMode } = useContext(DarkModeContext);
+
+    useEffect(() => {
+        if(userData){
+            setDarkMode(userData.dark_mode);
+        }
+    }, [isLoading])
+
     return (
             <MiniDrawer>
                 <Switch>
@@ -29,7 +41,6 @@ export const InnerApp = () => {
                     <PrivateRoute exact path="/project/:projectId/:listId/:cardId/edit" component={CardEdit} />
                     <PrivateRoute exact path="/admin" component={AdminPanel} />
                     <PrivateRoute exact path="/settings" component={Settings} />
-
                     <PrivateRoute exact path="/not_allowed" component={NotAllowed} />
                     <PrivateRoute component={NotFound} />
                 </Switch>

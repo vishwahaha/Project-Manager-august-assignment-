@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../../utils/hooks/UserContext";
+import { DarkModeContext } from "../App";
 import { Loading } from "../Login/Loading";
-import { Container, Box, Typography, Switch, Divider, Backdrop, CircularProgress } from "@mui/material";
+import { Container, Box, Typography, Switch, Divider, Backdrop, CircularProgress, useTheme } from "@mui/material";
+import DarkModeToggle from "react-dark-mode-toggle";
 import axios from 'axios';
 
 export const Settings = () => {
 
     const { user } = useContext(UserContext);
+    const { setDarkMode } = useContext(DarkModeContext);
 
     const [pageLoading, setPageLoading] = useState(true);
     const [reqLoading, setReqLoading] = useState(false);
@@ -14,7 +17,8 @@ export const Settings = () => {
     const [change, setChange] = useState(false);
 
     const [data, setData] = useState({});
-    console.log(user)
+    
+    const theme = useTheme();
 
     useEffect(() => {
         async function getSettings(){
@@ -69,16 +73,17 @@ export const Settings = () => {
                 <CircularProgress color="inherit" />
             </Backdrop>
 
-            <Typography variant="h3" mb={2}>
+            <Typography color="text.primary" variant="h3" mb={2}>
                 Settings
             </Typography>
-            <Box>
-                <Typography variant="h4" mb={1}>
-                    Email settings
+
+            <Box sx={{ mt: 2, mb: 2, }}>
+                <Typography color="text.primary" variant="h4" mb={1}>
+                    Appearance
                 </Typography>
                 <Box
                     sx={{ 
-                        backgroundColor: 'white',
+                        backgroundColor: theme.palette.background.paper,
                         borderRadius: 5,
                         p: 1,
                         pl: 2,
@@ -87,7 +92,38 @@ export const Settings = () => {
                 >
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, }}>
-                        <Typography>
+                        <Typography color="text.primary">
+                            Dark mode
+                        </Typography>
+                        <DarkModeToggle
+                            onChange={() => { 
+                                handleSettingChange(!data.dark_mode, 'dark_mode');
+                                setDarkMode(!data.dark_mode);
+                            }}
+                            checked={data.dark_mode}
+                            size={65}
+                        />
+                    </Box>
+                </Box>
+            </Box>
+
+
+            <Box sx={{ mt: 2, mb: 2, }}>
+                <Typography color="text.primary" variant="h4" mb={1}>
+                    Email settings
+                </Typography>
+                <Box
+                    sx={{ 
+                        backgroundColor: theme.palette.background.paper,
+                        borderRadius: 5,
+                        p: 1,
+                        pl: 2,
+                        pr: 2,
+                    }}
+                >
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, }}>
+                        <Typography color="text.primary">
                             Email me if I'm added to a project
                         </Typography>
                         <Switch
@@ -99,7 +135,7 @@ export const Settings = () => {
                     <Divider />
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, }}>
-                        <Typography>
+                        <Typography color="text.primary">
                             Email me if a card is assigned
                         </Typography>
                         <Switch
@@ -111,7 +147,7 @@ export const Settings = () => {
                     <Divider />
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, }}>
-                        <Typography>
+                        <Typography color="text.primary">
                             Email me if I'm disabled
                         </Typography>
                         <Switch
@@ -122,6 +158,8 @@ export const Settings = () => {
 
                 </Box>
             </Box>
+
+
             {postError &&
             <Typography color="error">
                 Some error occurred.
@@ -130,3 +168,4 @@ export const Settings = () => {
         </Container>
     );
 }
+

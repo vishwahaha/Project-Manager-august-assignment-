@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
-import { UserData, UserContext } from "../../utils/hooks/UserContext";
+import React, { useState, useContext } from "react";
+import { UserContext } from "../../utils/hooks/UserContext";
 import { ListSearchItem } from "../CreateProject/ListSearchItem";
 import axios from "axios";
 import {
@@ -10,12 +10,12 @@ import {
     Typography,
     TextField,
     Autocomplete,
-    Button,
     List,
     Chip,
     Avatar,
     Checkbox,
     useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { LoadingButton } from "@mui/lab";
@@ -87,27 +87,23 @@ export const CreateCardModal = (props) => {
             });
         }
     }
+    
+    const theme = useTheme();
+    const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
 
     const useStyles = makeStyles({
         scrollBar : {
             "&::-webkit-scrollbar": {
                 width: "7px",
                 height: "7px",
-                backgroundColor: "#F5F5F5",
-            },
-            "&::-webkit-scrollbar-track": {
-                "-webkit-box-shadow": "inset 0 0 6px rgba(0,0,0,0.3)",
-                backgroundColor: "#F5F5F5",
             },
             "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#6956C9",
+                backgroundColor: theme.palette.primary.main,
             },
         },
     });
 
     const myStyles = useStyles();
-    const theme = createTheme();
-    const isPhone = useMediaQuery(theme.breakpoints.down('sm'));
 
     return (
         <Modal open={props.open}>
@@ -116,7 +112,7 @@ export const CreateCardModal = (props) => {
                 maxWidth="md"
                 sx={{
                     borderRadius: 5,
-                    backgroundColor: "white",
+                    backgroundColor: theme.palette.background.paper,
                     position: "absolute",
                     top: "50%",
                     left: "50%",
@@ -141,9 +137,9 @@ export const CreateCardModal = (props) => {
                 <Typography
                     variant="h4"
                     align="center"
+                    color="text.disabled"
                     sx={{
                         fontWeight: 600,
-                        color: "#828282",
                         m: 1,
                     }}
                 >

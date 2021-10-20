@@ -144,8 +144,11 @@ def home(req):
 def user_details(req):
 
     user_obj = req.user
+    settings = models.Settings.objects.get(user = user_obj)
     serialized = serializers.userSerializer(user_obj)
-    return Response(serialized.data)
+    res_dict = serialized.data
+    res_dict['dark_mode'] = settings.dark_mode
+    return Response(res_dict)
 
 class UserViewSet(viewsets.ModelViewSet):
 

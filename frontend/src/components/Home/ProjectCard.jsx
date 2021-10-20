@@ -1,74 +1,87 @@
 import React from "react";
-import { Card, CardContent, Typography, CardActions, Chip, Box } from "@mui/material";
+import {
+    Card,
+    CardContent,
+    Typography,
+    CardActions,
+    Chip,
+    Box,
+    useTheme,
+} from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { useHistory } from "react-router-dom";
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 export const ProjectCard = (props) => {
 
-  let history = useHistory();
-  const useStyles = makeStyles({
-    multiLineEllipsis: {
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      display: "-webkit-box",
-      "-webkit-line-clamp": 3,
-      "-webkit-box-orient": "vertical"
-    },
-    finishedChip: {
-      backgroundColor: '#a8eda6',
-    },
-    ongoingChip: {
-      backgroundColor: '#ff7d7d',
-    },
-    limitHeight: {
-      maxHeight: 225,
-      cursor: 'pointer',
-    },
-    cardHover :{
-      '&:hover':{
-        backgroundColor: '#f5f5f5',
-        boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
-        borderColor: '#f5f5f5',
-      },
-    },
-  });
+    let history = useHistory();
 
-  const myStyles = useStyles();
+    const theme = useTheme();
 
-  function handleClick(){
-    history.push('/project/'+ props.projectId);
-  }
+    const useStyles = makeStyles({
+        finishedChip: {
+            backgroundColor: theme.palette.finished.main,
+            color: theme.palette.finished.text,
+        },
+        ongoingChip: {
+            backgroundColor: theme.palette.pending.main,
+            color: theme.palette.pending.text,
+        },
+        limitHeight: {
+            cursor: "pointer",
+        },
+        cardHover: {
+            "&:hover": {
+                boxShadow: theme.shadows[3],
+            },
+        },
+    });
 
-  return (
-    <Box className={myStyles.limitHeight}>
-      <Card 
-        variant="outlined" 
-        sx={{ backgroundColor: '#f2f2f2', borderRadius: 5, borderColor: '#b0b0b0', width: 260, m: 'auto',  }}
-        onClick={handleClick}
-        className={myStyles.cardHover}
-      >
-        <CardContent>
-          <Typography variant="h6" noWrap component="div">
-            {props.title}
-          </Typography>
-          <Typography sx={{ mb: 1.5 }} color="text.secondary">
-            Leader: {props.creator}
-          </Typography>
-            <div
-              dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(props.description)}} 
-              style={{ overflow: 'hidden', maxHeight: 60, }}
+    const myStyles = useStyles();
+
+    function handleClick() {
+        history.push("/project/" + props.projectId);
+    }
+
+    return (
+        <Box className={myStyles.limitHeight}>
+            <Card
+                variant="outlined"
+                sx={{
+                    backgroundColor: theme.palette.background.paper,
+                    borderRadius: 5,
+                    width: 260,
+                    m: "auto",  
+                }}
+                onClick={handleClick}
+                className={myStyles.cardHover}
             >
-            </div>
-        </CardContent>
-        <CardActions>
-          <Chip
-           label={props.finishedStatus ? "Finished" : "Ongoing" } 
-           className={props.finishedStatus ? myStyles.finishedChip : myStyles.ongoingChip} 
-           sx={{ cursor: 'pointer', }}
-          />
-        </CardActions>
-      </Card>
-    </Box>
-  );
+                <CardContent sx={{ pb: 0, }}>
+                    <Typography color="text.primary" variant="h6">
+                        {props.title}
+                    </Typography>
+                    <Typography color="text.secondary">
+                        Leader: {props.creator}
+                    </Typography>
+                    {/* <div
+                        dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(props.description),
+                        }}
+                        style={{ overflow: "hidden", maxHeight: 60 }}
+                    ></div> */}
+                </CardContent>
+                <CardActions>
+                    <Chip
+                        label={props.finishedStatus ? "Finished" : "Ongoing"}
+                        className={
+                            props.finishedStatus
+                                ? myStyles.finishedChip
+                                : myStyles.ongoingChip  
+                        }
+                        sx={{ cursor: "pointer" }}
+                    />
+                </CardActions>
+            </Card>
+        </Box>
+    );
 };
