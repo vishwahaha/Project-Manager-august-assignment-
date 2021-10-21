@@ -16,7 +16,6 @@ import {
     useTheme
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 //For rich text field.
@@ -25,6 +24,7 @@ import { ListSearchItem } from "./ListSearchItem";
 import { NotAllowed } from "../NotAllowed";
 import { UserContext, UserData } from "../../utils/hooks/UserContext";
 import EditorToolbar, { modules, formats } from "../../utils/EditorToolbar";
+import { StrAvatar } from "../../utils/StrAvatar";
 import "react-quill/dist/quill.snow.css";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
@@ -264,35 +264,7 @@ export const CreateProject = () => {
                                                 return (
                                                     <Chip
                                                         key={index}
-                                                        avatar={
-                                                            option.display_picture ===
-                                                            null ? (
-                                                                <Avatar>
-                                                                    {option.full_name
-                                                                        .split(
-                                                                            " "
-                                                                        )
-                                                                        .map(
-                                                                            (
-                                                                                item
-                                                                            ) =>
-                                                                                item.charAt(
-                                                                                    0
-                                                                                )
-                                                                        )
-                                                                        .join(
-                                                                            ""
-                                                                        )
-                                                                        .toUpperCase()}
-                                                                </Avatar>
-                                                            ) : (
-                                                                <Avatar
-                                                                    src={
-                                                                        option.display_picture
-                                                                    }
-                                                                />
-                                                            )
-                                                        }
+                                                        avatar={<StrAvatar data={option}/>}
                                                         label={
                                                             option.full_name +
                                                             ", " +
@@ -304,31 +276,7 @@ export const CreateProject = () => {
                                             return (
                                                 <Chip
                                                     {...getTagProps({ index })}
-                                                    avatar={
-                                                        option.display_picture ===
-                                                        null ? (
-                                                            <Avatar>
-                                                                {option.full_name
-                                                                    .split(" ")
-                                                                    .map(
-                                                                        (
-                                                                            item
-                                                                        ) =>
-                                                                            item.charAt(
-                                                                                0
-                                                                            )
-                                                                    )
-                                                                    .join("")
-                                                                    .toUpperCase()}
-                                                            </Avatar>
-                                                        ) : (
-                                                            <Avatar
-                                                                src={
-                                                                    option.display_picture
-                                                                }
-                                                            />
-                                                        )
-                                                    }
+                                                    avatar={<StrAvatar data={option}/>}
                                                     label={
                                                         option.full_name +
                                                         ", " +

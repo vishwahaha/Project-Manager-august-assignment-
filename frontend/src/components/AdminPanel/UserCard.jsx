@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { UserContext } from "../../utils/hooks/UserContext";
+import { StrAvatar } from "../../utils/StrAvatar";
 
 export const UserCard = (props) => {
 
@@ -105,26 +106,7 @@ export const UserCard = (props) => {
                         alignItems: "center",
                     }}
                 >
-                    {props.user.display_picture === null ? (
-                        <Avatar
-                            sx={{
-                                bgcolor: "#6956C9",
-                                mr: 1.5,
-                                ml: 1.5,
-                            }}
-                        >
-                            {props.user.full_name
-                                .split(" ")
-                                .map((item) => item.charAt(0))
-                                .join("")
-                                .toUpperCase()}
-                        </Avatar>
-                    ) : (
-                        <Avatar
-                            sx={{ mr: 1.5, ml: 1.5 }}
-                            src={props.user.display_picture}
-                        />
-                    )}
+                    <StrAvatar data={props.user} sx={{ ml: 1.5, mr: 1.5 }} />
                     <Box>
                         <Typography color="text.primary" variant="body1">
                             {props.user.full_name}

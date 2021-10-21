@@ -1,9 +1,10 @@
 import React, { useState, useContext } from "react";
 import { UserData } from "../../utils/hooks/UserContext";
-import { Box, Avatar, Typography, IconButton, TextField, Button, useTheme } from "@mui/material";
+import { Box, Typography, IconButton, TextField, Button, useTheme } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import { StrAvatar } from "../../utils/StrAvatar";
 
 export const Comment = (props) => {
 
@@ -41,25 +42,7 @@ export const Comment = (props) => {
         >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', }}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {props.comment.commentor.display_picture === null ? (
-                        <Avatar
-                            sx={{
-                                bgcolor: "#6956C9",
-                                mr: 0.5,
-                            }}
-                        >
-                            {props.comment.commentor.full_name
-                                .split(" ")
-                                .map((item) => item.charAt(0))
-                                .join("")
-                                .toUpperCase()}
-                        </Avatar>
-                    ) : (
-                        <Avatar
-                            sx={{ mr: 0.5, }}
-                            src={props.comment.commentor.display_picture}
-                        />
-                    )}
+                    <StrAvatar data={props.comment.commentor} sx={{ mr: 0.5, }} />
                     <Typography color="text.primary" ml={1} variant="h6">
                         {props.comment.commentor.full_name}
                     </Typography>

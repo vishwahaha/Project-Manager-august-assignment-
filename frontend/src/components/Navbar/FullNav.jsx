@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
 import { UserData } from "../../utils/hooks/UserContext";
 import useLogout from "../../utils/hooks/useLogout";
+import { StrAvatar } from "../../utils/StrAvatar";
 import { useHistory } from "react-router";
 import {
     useMediaQuery,
-    createTheme,
     Box,
     Toolbar,
     List,
@@ -13,7 +13,6 @@ import {
     IconButton,
     ListItem,
     ListItemText,
-    Avatar,
     useTheme,
 } from "@mui/material";
 import { styled, } from "@mui/material/styles";
@@ -210,26 +209,7 @@ export const MiniDrawer = (props) => {
                 <Drawer variant="permanent" open={open}>
                     <DrawerHeader>
                         <Box sx={{ display: "flex", alignItems: "center" }}>
-                            {userData.display_picture === null ? (
-                                <Avatar
-                                    sx={{
-                                        bgcolor: "#6956C9",
-                                        mr: 1.5,
-                                        ml: 1.5,
-                                    }}
-                                >
-                                    {userData.full_name
-                                        .split(" ")
-                                        .map((item) => item.charAt(0))
-                                        .join("")
-                                        .toUpperCase()}
-                                </Avatar>
-                            ) : (
-                                <Avatar
-                                    sx={{ mr: 1.5, ml: 1.5 }}
-                                    src={userData.display_picture}
-                                />
-                            )}
+                            <StrAvatar sx={{ ml: 1.5, mr: 1.5 }} data={userData} />
                             <Typography color="text.primary">{userData.full_name}</Typography>
                         </Box>
                         <IconButton onClick={handleDrawerClose}>

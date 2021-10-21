@@ -39,11 +39,11 @@ export const CardDetail = () => {
         }
         getCard();
 
-        // return () => {
-        //     socket.send(JSON.stringify({
-        //         'command': 'disconnect',
-        //     }));
-        // }
+        return () => {
+            socket.send(JSON.stringify({
+                'command': 'disconnect',
+            }));
+        }
 
     }, [user]);
 

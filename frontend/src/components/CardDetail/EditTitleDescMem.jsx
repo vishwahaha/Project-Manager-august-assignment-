@@ -1,5 +1,6 @@
 import React, { useState, useContext, } from "react";
 import { UserContext } from "../../utils/hooks/UserContext";
+import { StrAvatar } from "../../utils/StrAvatar";
 import { ListSearchItem } from "../CreateProject/ListSearchItem";
 import axios from "axios";
 import {
@@ -11,7 +12,6 @@ import {
     Button,
     List,
     Chip,
-    Avatar,
     Checkbox,
     useMediaQuery,
     FormControlLabel,
@@ -22,7 +22,6 @@ import { LoadingButton } from "@mui/lab";
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { DatePicker } from "@mui/lab";
-import { createTheme } from "@mui/material/styles";
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -275,26 +274,7 @@ export const EditTitleDescMem = (props) => {
                                     return (
                                         <Chip
                                             {...getTagProps({ index })}
-                                            avatar={
-                                                option.display_picture ===
-                                                null ? (
-                                                    <Avatar>
-                                                        {option.full_name
-                                                            .split(" ")
-                                                            .map((item) =>
-                                                                item.charAt(0)
-                                                            )
-                                                            .join("")
-                                                            .toUpperCase()}
-                                                    </Avatar>
-                                                ) : (
-                                                    <Avatar
-                                                        src={
-                                                            option.display_picture
-                                                        }
-                                                    />
-                                                )
-                                            }
+                                            avatar={<StrAvatar data={option} />}
                                             label={
                                                 option.full_name +
                                                 ", " +

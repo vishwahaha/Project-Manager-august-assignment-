@@ -1,9 +1,15 @@
 import React from "react";
-import { Chip, Typography, Avatar, Skeleton, Box, useTheme } from "@mui/material";
+import { Chip, Typography, Skeleton, Box, useTheme } from "@mui/material";
+import { StrAvatar } from "../../utils/StrAvatar";
 
 export const ProjectMember = (props) => {
 
     const theme = useTheme();
+
+    const data = {
+        'display_picture': props.avatar,
+        'full_name': props.fullName,
+    }
 
     return (
         <Box
@@ -24,17 +30,7 @@ export const ProjectMember = (props) => {
                     justifyContent: "flex-start",
                 }}
             >
-                {props.avatar === null ? (
-                    <Avatar sx={{ bgcolor: "#6956C9", mr: 1 }}>
-                        {props.fullName
-                            .split(" ")
-                            .map((item) => item.charAt(0))
-                            .join("")
-                            .toUpperCase()}
-                    </Avatar>
-                ) : (
-                    <Avatar sx={{ mr: 1 }} src={props.avatar} />
-                )}
+                <StrAvatar sx={{ mr: 1, }} data={data} />
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                     <Typography color="text.primary" variant="body1">{props.fullName}</Typography>
                     <Box

@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import { UserContext, UserData } from "../../utils/hooks/UserContext";
+import { StrAvatar } from "../../utils/StrAvatar";
 import ReactQuill from "react-quill";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
@@ -239,35 +240,7 @@ export const EditNameWikiMembers = (props) => {
                                                 return (
                                                     <Chip
                                                         key={index}
-                                                        avatar={
-                                                            option.display_picture ===
-                                                            null ? (
-                                                                <Avatar>
-                                                                    {option.full_name
-                                                                        .split(
-                                                                            " "
-                                                                        )
-                                                                        .map(
-                                                                            (
-                                                                                item
-                                                                            ) =>
-                                                                                item.charAt(
-                                                                                    0
-                                                                                )
-                                                                        )
-                                                                        .join(
-                                                                            ""
-                                                                        )
-                                                                        .toUpperCase()}
-                                                                </Avatar>
-                                                            ) : (
-                                                                <Avatar
-                                                                    src={
-                                                                        option.display_picture
-                                                                    }
-                                                                />
-                                                            )
-                                                        }
+                                                        avatar={<StrAvatar data={option} />}
                                                         label={
                                                             option.full_name +
                                                             ", " +
@@ -281,35 +254,7 @@ export const EditNameWikiMembers = (props) => {
                                                         {...getTagProps({
                                                             index,
                                                         })}
-                                                        avatar={
-                                                            option.display_picture ===
-                                                            null ? (
-                                                                <Avatar>
-                                                                    {option.full_name
-                                                                        .split(
-                                                                            " "
-                                                                        )
-                                                                        .map(
-                                                                            (
-                                                                                item
-                                                                            ) =>
-                                                                                item.charAt(
-                                                                                    0
-                                                                                )
-                                                                        )
-                                                                        .join(
-                                                                            ""
-                                                                        )
-                                                                        .toUpperCase()}
-                                                                </Avatar>
-                                                            ) : (
-                                                                <Avatar
-                                                                    src={
-                                                                        option.display_picture
-                                                                    }
-                                                                />
-                                                            )
-                                                        }
+                                                        avatar={<StrAvatar data={option} />}
                                                         label={
                                                             option.full_name +
                                                             ", " +
